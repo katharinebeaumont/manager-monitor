@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import agent.loadmanager.StreamConsumer;
 import agent.memory.domain.Location;
 import agent.memory.domain.Monitor;
 
@@ -45,11 +44,8 @@ public class LocalDeploymentService {
 		if (logtoconsole) {
 			Process process;
 			try {
-				// Start then pretty much abandon
-				//File output = new File(agentDirectory, "console" + agentLoggingFile); 
+				// Start then write output to the manager's console
 				process = builder.start();
-				//StreamConsumer streamGobbler = 
-				//		  new StreamConsumer(process.getInputStream(), new FileConsumer(output));
 				StreamConsumer streamGobbler = 
 						  new StreamConsumer(process.getInputStream(), System.out::println);
 				Executors.newSingleThreadExecutor().submit(streamGobbler);

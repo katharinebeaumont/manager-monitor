@@ -16,6 +16,11 @@ Start the application in `agent.mode=manager` (see `application.properties`).
 
 # Manager
 
+Neo4J entities:
+- Application: applications to be deployed. Linked to a location once deployed.
+- Location: locations (local or remote) available for deployments
+- Monitors: agents responsible for applications. Linked to a location once deployed - typically the same one as the application but a different port. 
+
 Reads in Applications from Neo4J:
  - At the moment this wipes the Neo4J database, then creates and saves two applications (twitterClient and twitterService) and two locations on localhost (port 8000 and 9000).
  - The ManagerAgent is started. This:
