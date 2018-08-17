@@ -13,7 +13,7 @@ Configuration requirements:
  - The name of the jar file for monitoring agents
 
 Start the application in `agent.mode=manager` (see `application.properties`).
-See [PLAN.md](https://github.com/katharinebeaumont/manager-monitor/PLAN.md) for details of what needs to be done.
+See [PLAN.md](https://github.com/katharinebeaumont/manager-monitor/blob/master/PLAN.md) for details of what needs to be done.
 
 # Manager
 
