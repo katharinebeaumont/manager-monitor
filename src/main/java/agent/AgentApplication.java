@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.web.client.RestTemplate;
 
-import agent.loadmanager.ManagerAgent;
+import agent.manager.ManagerAgent;
 import agent.memory.ApplicationEntityService;
 import agent.memory.LocationEntityService;
 import agent.memory.MonitoringEntityService;

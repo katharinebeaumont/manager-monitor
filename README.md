@@ -6,16 +6,25 @@ Requirements:
 - Neo4J
 
 Configuration requirements:
-- See `application.properties`:
+- See [`application.properties`](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/resources/application.properties):
  - Neo4J username, password and location
  - Directory on the server where monitoring agents will be deployed where the jar file can be found
  (eventually this will be transferred across to the home directory of the server)
  - The name of the jar file for monitoring agents
 
-Start the application in `agent.mode=manager` (see `application.properties`).
+Compilation requirements:
+- A jar needs to be compiled for the monitor, named (`agent.monitor.jar`) and located (`agent.directory`) as per the configuration requirements.
+
+Start the application in `agent.mode=manager` (see [`application.properties`](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/resources/application.properties)).
 See [PLAN.md](https://github.com/katharinebeaumont/manager-monitor/blob/master/PLAN.md) for details of what needs to be done.
 
 # Manager
+
+To run in manager mode:
+- Ensure `application.properties` contains
+
+    agent.mode=manager
+    agent.name=manager
 
 Neo4J entities:
 - Application: applications to be deployed. Linked to a location once deployed.
@@ -35,5 +44,12 @@ Reads in Applications from Neo4J:
 
 # Monitor
 
+To run in monitor mode:
+- Ensure `application.properties` contains
+
+    agent.mode=monitor
+    
+  and that the `agent.name` matches a Monitor in the database, that has an Application, and both are linked to a Location.
+  
 Starts the application locally on the instructed port.
 Monitors the application based on available metrics. These depend on the application.

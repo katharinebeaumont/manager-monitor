@@ -3,8 +3,10 @@ package agent.memory.domain;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import agent.common.Heartbeat;
+
 @NodeEntity
-public class Monitor extends Entity {
+public class Monitor extends Entity implements Heartbeat {
 	
    private String name;
    private long born;
@@ -34,6 +36,10 @@ public class Monitor extends Entity {
    
 	public Location getLocation() {
 		return location;
+	}
+	   
+	public Application getApplication() {
+		return application;
 	}
 	
 	public void setResponsibility(Application application) {

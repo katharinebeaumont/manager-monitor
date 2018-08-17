@@ -1,4 +1,4 @@
-package agent.loadmanager;
+package agent.common;
 
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -23,7 +23,7 @@ import agent.memory.domain.Monitor;
 public class HeartbeatService {
 
 	@Autowired
-	private HeartbeatController controller;
+	private HeartbeatRestController controller;
 	
 	private static final Logger log = LoggerFactory.getLogger(HeartbeatService.class);
 	
@@ -33,31 +33,30 @@ public class HeartbeatService {
 	@Value("${agent.heartbeat.interval}")
 	private int interval;
 	
-	private HashMap<Monitor, ScheduledExecutorService> heartbeats = new HashMap<>();
-	private HashMap<Monitor, Integer> errorCounts = new HashMap<>();
+	private HashMap<Heartbeat, ScheduledExecutorService> heartbeats = new HashMap<>();
+	private HashMap<Heartbeat, Integer> errorCounts = new HashMap<>();
 	
-	public void startHeartBeat(Monitor monitor, Location loc) {
+	public void startHeartBeat(Heartbeat heartbeat) {
 
 		final ScheduledExecutorService scheduler =
 			     Executors.newScheduledThreadPool(1);
 		
-		heartbeats.put(monitor, scheduler);
-		errorCounts.put(monitor, 0);
+		heartbeats.put(heartbeat, scheduler);
+		errorCounts.put(heartbeat, 0);
 		
 		class HeartBeatTask implements Runnable {
-			Monitor s;
-			Location l;
-			HeartBeatTask(Monitor s, Location l) {this.s = s; this.l=l;}
+			Heartbeat s;
+			HeartBeatTask(Heartbeat s) {this.s = s;}
 			public void run() {
+				Location loc = s.getLocation();
 				try {
-					controller.beat(s, l);
+					controller.beat(s.getName(), loc);
 				} catch (Exception e){
-					log.error("Error with heartbeat for monitor " + s.getName() + " on port: " + l.getPort());
-					log.error(e.getMessage());
+					log.error("Error with heartbeat for " + s.getName() + " on port: " + loc.getPort());
 					
-					int errorCount = errorCounts.get(monitor);
+					int errorCount = errorCounts.get(heartbeat);
 					errorCount++;
-					errorCounts.put(monitor, errorCount);
+					errorCounts.put(s, errorCount);
 					if (errorCount >= errorThreshold) {
 						log.error("Stopping heartbeat with " + s.getName() + 
 								" as error count (" + errorCount + ") exceeds threshold of " + errorThreshold);
@@ -67,15 +66,15 @@ public class HeartbeatService {
 			}
 		}
 		
-	    final Runnable beater = new HeartBeatTask(monitor, loc);
+	    final Runnable beater = new HeartBeatTask(heartbeat);
 	    scheduler.scheduleAtFixedRate(beater, 30, interval, TimeUnit.SECONDS);
 	}
 	
-	private void stopHeartBeat(Monitor monitor) {
-		ScheduledExecutorService scheduler = heartbeats.get(monitor);
+	private void stopHeartBeat(Heartbeat heartbeat) {
+		ScheduledExecutorService scheduler = heartbeats.get(heartbeat);
 		scheduler.shutdown();
-		heartbeats.remove(monitor);
-		errorCounts.remove(monitor);
+		heartbeats.remove(heartbeat);
+		errorCounts.remove(heartbeat);
 	}
 	
 }

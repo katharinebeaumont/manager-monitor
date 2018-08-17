@@ -1,4 +1,4 @@
-package agent.loadmanager;
+package agent.manager;
 
 import java.util.Collection;
 

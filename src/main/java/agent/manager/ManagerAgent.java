@@ -1,4 +1,4 @@
-package agent.loadmanager;
+package agent.manager;
 
 import java.util.Collection;
 import org.slf4j.Logger;
@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import agent.common.HeartbeatService;
 import agent.deployment.DeploymentService;
 import agent.memory.ApplicationEntityService;
 import agent.memory.LocationEntityService;
@@ -60,16 +61,15 @@ public class ManagerAgent {
 			// Check if there is a monitor for the application
 			Monitor monitor = monitoringAgentService.findForApplication(e.getName(), 1);
 			log.info("Service is: " + e.getName());
-			// If not, generate and deploy a new montiroing agent.
+			// If not, generate and deploy a new monitoring agent.
 			if (monitor == null) {
 				log.info("Generating a new agent for: " + e.getName());
 				monitor = generateAndDeployMonitor(e);
 			}
 			
 			// Start a heartbeat with the monitor
-			Location loc = monitor.getLocation();
 			log.info("Starting heartbeat with " + monitor.getName());
-			heartbeatService.startHeartBeat(monitor, loc);
+			heartbeatService.startHeartBeat(monitor);
 		}
 	}
 
@@ -82,19 +82,20 @@ public class ManagerAgent {
 		monitor.setLocation(locationForMonitor);
 		monitoringAgentService.save(monitor);
 		
-		deploymentService.deploy(monitor, locationForMonitor);
+		deploymentService.deployMonitor(monitor);
 		return monitor;
 	}
 
 	private Location selectLocation(Application application) {
 		Location loc = locationService.findForApplication(application.getName());
 		if (loc == null) {
-			//Select location. Bind application to it on a different port 
+			//Select location. Bind application to it
 			loc = locationDecision.select(application);
 			application.setLocation(loc);
 			appService.save(application);
 		} 
-		int port = loc.getPort() + 10;
+		// Use the location of the application, but select a different port 
+		int port = loc.getPort() + 10; //TODO: assumes any port can be used where application is being deployed.
 		Location locationForMonitor = new Location(loc.getPath(), loc.getType(), port);
 		locationService.save(locationForMonitor);
 		return locationForMonitor;

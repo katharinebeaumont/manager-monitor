@@ -12,10 +12,10 @@ import agent.memory.domain.Location;
 @Repository
 public interface LocationRepository extends Neo4jRepository<Location, Long> {
 
-	@Query("MATCH (a:Application {name: '{nameStr}'})--(l:Location) RETURN l LIMIT {limit}")
+	@Query("MATCH (a:Application {name: {nameStr}})--(l:Location) RETURN l LIMIT {limit}")
     Location locationForApplication(@Param("nameStr") String name, @Param("limit") int limit);
 
-	@Query("MATCH (m:Monitor {name: '{nameStr}'})--(l:Location) RETURN l LIMIT {limit}")
+	@Query("MATCH (m:Monitor {name: {nameStr}})--(l:Location) RETURN l LIMIT {limit}")
     Location locationForMonitor(@Param("nameStr") String name, @Param("limit") int limit);
 
 	@Query("MATCH (n:Location) RETURN n LIMIT {limit}")

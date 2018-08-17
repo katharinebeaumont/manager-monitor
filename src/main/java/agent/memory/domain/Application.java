@@ -3,8 +3,10 @@ package agent.memory.domain;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import agent.common.Heartbeat;
+
 @NodeEntity
-public class Application extends Entity {
+public class Application extends Entity implements Heartbeat {
 	
 	private String name;
 	

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 import agent.memory.domain.Monitor;
 
@@ -18,24 +19,17 @@ import agent.memory.domain.Monitor;
 @Service
 public class LocalDeploymentService {
 
-	@Value("${agent.directory}")
-	protected String agentDirectory;
 	
-	@Value("${agent.monitor.jar}")
-	protected String agentJar;
-
 	private static final Logger log = LoggerFactory.getLogger(LocalDeploymentService.class);
 	
-	public void deploy(Monitor monitor, Location location) {
+	public void deploy(String directory, String commandStr) {
 
 		ProcessBuilder builder = new ProcessBuilder();
-		String agentLoggingFile = monitor.getName() + monitor.getBorn() + "-log.txt";
-		builder.command("java", "-jar", "-Dserver.port=" + location.getPort(), "-Dagent.mode=monitoring", 
-				"-Dagent.logging.file=" + agentLoggingFile, "-Dagent.name=" + monitor.getName(), agentJar);
-		
-		builder.directory(new File(agentDirectory)); 
-		
-		log.info("Initialising monitor at " + agentDirectory + " on port " + location.getPort());
+		//This needs to be split into a String array
+		String[] command = commandStr.split(" ");
+		builder.command(command);
+		builder.directory(new File(directory)); 
+		log.info("Executing at " + directory + " with command: " + commandStr);
 		
 		// This is for debugging: either hijack the manager's console output (logtoconsole)
 		// or log the output to the file in the directory specified when the monitoring agent 
