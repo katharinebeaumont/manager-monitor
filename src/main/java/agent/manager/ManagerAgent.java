@@ -68,7 +68,6 @@ public class ManagerAgent {
 			}
 			
 			// Start a heartbeat with the monitor
-			log.info("Starting heartbeat with " + monitor.getName());
 			heartbeatService.startHeartBeat(monitor);
 		}
 	}

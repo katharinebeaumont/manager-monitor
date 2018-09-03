@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,7 +23,12 @@ import agent.memory.MonitoringEntityService;
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 import agent.monitor.MonitoringAgent;
+import de.codecentric.boot.admin.server.config.EnableAdminServer;
 
+
+@Configuration
+@EnableAutoConfiguration
+@EnableAdminServer
 @SpringBootApplication
 @EnableNeo4jRepositories("agent.memory")
 @ComponentScan(basePackages = { "agent.*" } )
@@ -51,7 +58,6 @@ public class AgentApplication {
 	
 	@Autowired
 	LocationEntityService locService;
-	
 	
 	@Value("${agent.mode}")
 	private String agentMode;

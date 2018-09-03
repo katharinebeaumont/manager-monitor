@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 import agent.memory.domain.Location;
 import agent.memory.domain.Monitor;
+import agent.monitor.StatusService;
 
 /**
  * Rest Controller that sends a request to monitoring agents and collects feedback.
@@ -21,19 +22,22 @@ public class HeartbeatRestController {
 	@Autowired
     private RestTemplate restTemplate;
 	
-	public void beat(String name, Location loc) throws Exception {
+	@Autowired
+	private StatusService status;
+	
+	public void beat(String name, Location loc) throws HeartbeatException {
 		
-		//TODO set a timer around this
-        String url = loc.getPath() + ":" + loc.getPort() + "/heartbeat";
+		String url = loc.getPath() + ":" + loc.getPort() + "/heartbeat";
         log.debug("Checking on " + name + " on port " + loc.getPort());
-        log.info("URL: " + url);
+        log.debug("URL: " + url);
         try {
-        		HeartbeatResponse response = restTemplate.getForObject(url, HeartbeatResponse.class);
-        		log.debug("Response is :" + response);
+        		String response = restTemplate.getForObject(url, String.class);
+        		log.info("Response is :" + response);
+        		status.heartbeat();
         } catch (RestClientException ex) {
         		log.error("Error calling " + name);
-        		ex.printStackTrace();
-        		throw new Exception("Error with heartbeat for " +  name);
+        		status.stoppedHeartbeat();
+        		throw new HeartbeatException("Error with heartbeat for " +  name);
         }
 	}
 	

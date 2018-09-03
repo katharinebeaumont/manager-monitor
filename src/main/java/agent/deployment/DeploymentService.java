@@ -29,6 +29,9 @@ public class DeploymentService {
 	@Value("${agent.service.jar}")
 	protected String serviceJar;
 	
+	@Value("${server.port}")
+	protected String currentPort;
+	
 	public void deployMonitor(Monitor monitor) {
 		
 		Location location = monitor.getLocation();
@@ -48,10 +51,14 @@ public class DeploymentService {
 	public void deployApplication(Application application) {
 		
 		Location location = application.getLocation();
+		String name = application.getName();
 		
 		String loggingFile = application.getName() + "-log.txt";
 		String command = "java -jar -Dserver.port=" + location.getPort() 
-		        + " -Dlogging.file=" + loggingFile + " " + serviceJar;
+		        + " -Dlogging.file=" + loggingFile
+		        + " -Dmonitoring.port=" + currentPort 
+		        + " -Dname=" + name
+		        + " " + serviceJar;
 		
 		// Applications are always deployed locally
 		localDeployment.deploy(agentDirectory, command);

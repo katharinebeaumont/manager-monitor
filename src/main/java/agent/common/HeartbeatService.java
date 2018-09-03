@@ -33,6 +33,9 @@ public class HeartbeatService {
 	@Value("${agent.heartbeat.interval}")
 	private int interval;
 	
+	@Value("${agent.heartbeat.initialDelay}")
+	private int delay;
+	
 	private HashMap<Heartbeat, ScheduledExecutorService> heartbeats = new HashMap<>();
 	private HashMap<Heartbeat, Integer> errorCounts = new HashMap<>();
 	
@@ -67,7 +70,10 @@ public class HeartbeatService {
 		}
 		
 	    final Runnable beater = new HeartBeatTask(heartbeat);
-	    scheduler.scheduleAtFixedRate(beater, 30, interval, TimeUnit.SECONDS);
+	    TimeUnit timeUnit = TimeUnit.SECONDS;
+	    scheduler.scheduleAtFixedRate(beater, delay, interval, timeUnit);
+	    log.info("Starting heartbeat with " + heartbeat.getName() + " in " + delay + " " + timeUnit.toString());
+		
 	}
 	
 	private void stopHeartBeat(Heartbeat heartbeat) {
