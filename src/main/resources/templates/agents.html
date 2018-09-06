@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Q Learning: Agents</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Q Learning: Agents</h1>
+    <h3> Select an agent </h3>
+    <tbody>
+    <tr th:if="${agentNames.empty}">
+            <td colspan="2"> No Agents Available </td>
+    </tr>
+    <ul>
+    <tr th:each="agent : ${agentNames}">
+    		<li><a th:href="@{/agent/learning/{path}(path=${agent.name})}"><td><span th:text="${agent.name}"> Name: </span></td></li>
+    </ul>
+    </tr>
+    </tbody>
+</body>
+</html>

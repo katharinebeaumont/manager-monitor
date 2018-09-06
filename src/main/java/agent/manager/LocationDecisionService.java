@@ -22,7 +22,18 @@ public class LocationDecisionService {
 	@Autowired
 	private LocationEntityService locationService;
 
-	public Location select(Application e) {
+	public Location selectInitial(Application e) {
+		// Look at all free locations
+		Collection<Location> locs = locationService.findFreeLocation();
+		// Currently, just return the first one.
+		for (Location l: locs) {
+			return l; 
+		}
+		return null;
+	}
+
+	//TODO needs to have intelligent decision making
+	public Location selectNew(Application application) {
 		// Look at all free locations
 		Collection<Location> locs = locationService.findFreeLocation();
 		// Currently, just return the first one.

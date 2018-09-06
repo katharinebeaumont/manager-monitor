@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Q Learning: Agent Episode</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Learnings </h1>
+    <tbody>
+    <p th:text="'There are ' + ${stepCount} + ' in episode ' + ${episodeNo}"</p>
+    
+    <p th:text="'Episode total value is ' + ${episodeView.totalValue}"</p>
+    
+    <h2>Episode Steps</h1>
+        <table>
+    <thead>
+        <tr>
+            <th> Step </th>
+        </tr>
+    </thead>
+    
+    <tbody>
+     <tr th:if="${episodeView.episodeSteps.empty}">
+            <td colspan="2"> No steps to show yet </td>
+        </tr>
+        <tr th:each="view : ${episodeView.episodeSteps}">
+            <td><span th:text="${view}"> Step </span></td>
+        </tr>
+    </tbody>
+	</table>
+    
+</body>
+</html>

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Controller;
 
 import agent.common.HeartbeatException;
 import agent.common.HeartbeatRestController;
-import agent.common.HeartbeatService;
 import agent.deployment.DeploymentService;
+import agent.manager.HeartbeatService;
 import agent.memory.ApplicationEntityService;
 import agent.memory.LocationEntityService;
 import agent.memory.domain.Application;
@@ -37,12 +37,6 @@ public class MonitoringAgent {
 	private DeploymentService deploymentService;
 	
 	@Autowired
-	private HeartbeatService heartbeatService;
-	
-	@Autowired
-	private HeartbeatRestController heartbeatController;
-	
-	@Autowired
 	private MonitoringService monitoringService;
 	
 	@Value("${agent.name}")
@@ -58,13 +52,12 @@ public class MonitoringAgent {
 		//See if the application is running already
 		try {
 			log.info("Checking to see if " + application.getName() + " is running.");
-			heartbeatController.beat(application.getName(), application.getLocation()); 
+			monitoringService.ping(application);
 		} catch (HeartbeatException ex) {
 			log.info(application.getName() + " is not running: deploying it now.");
 			deploymentService.deployApplication(application);
 		}
 		
-		heartbeatService.startHeartBeat(application);
 		monitoringService.startMonitoring(application);
 	}
 

@@ -36,6 +36,7 @@ public class MonitoringRestController {
          } catch (RestClientException ex) {
        		log.error("Error calling " + name);
        		ex.printStackTrace();
+       		status.lostContact();
        		throw new Exception("Error with monitoring " +  name);
         }
 	}

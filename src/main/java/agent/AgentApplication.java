@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 import agent.manager.ManagerAgent;
@@ -62,34 +63,39 @@ public class AgentApplication {
 	@Value("${agent.mode}")
 	private String agentMode;
 	
+	@Value("${experiment}")
+	private int experiment;
+	
 	@Bean
     CommandLineRunner init(ApplicationContext appContext) {
 		log.info("Initialising .... ");
 		
 		if (agentMode.equals("manager")) {
-			
-			log.info("Deleting all slaves");
-			slaveService.deleteAll();
-			
-			log.info("Deleting all locations");
-			locService.deleteAll();
-			
-			log.info("Deleting all applications");
-			appService.deleteAll();
-			Application entity = new Application("twitterClient");
-			appService.save(entity);
-			log.info("Saved new application twitterClient");
-			
-			Application entity2 = new Application("twitterService");
-			appService.save(entity2);
-			log.info("Saved new application twitterService");
-			
-			Location loc1 = new Location("http://localhost", "local", 8000);
-			Location loc2 = new Location("http://localhost", "local", 9000);
-			locService.save(loc1);
-			log.info("Saved new location on localhost (port 8000)");
-			locService.save(loc2);
-			log.info("Saved new location on localhost (port 9000)");
+			if (experiment == 0) {
+				log.info("Starting experiment 0: automatically deploy agent and mock service locally.");
+				log.info("Deleting all slaves");
+				slaveService.deleteAll();
+				
+				log.info("Deleting all locations");
+				locService.deleteAll();
+				
+				log.info("Deleting all applications");
+				appService.deleteAll();
+				
+				Application entity1 = new Application("mockService", "mockService.jar");
+				appService.save(entity1);
+				log.info("Saved new application " + entity1.getName());
+				
+				log.info("Creating 4 possible locations");
+				Location loc1 = new Location("http://localhost", "local", 8000);
+				Location loc2 = new Location("http://localhost", "local", 9000);
+				Location loc3 = new Location("http://localhost", "local", 6000);
+				Location loc4 = new Location("http://localhost", "local", 5000);
+				locService.save(loc1);
+				locService.save(loc2);
+				locService.save(loc3);
+				locService.save(loc4);
+			}
 			
 			log.info("Staring in mode: manager");
 			manAgent.startup();

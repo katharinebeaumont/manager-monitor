@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import agent.common.HeartbeatException;
+import agent.common.HeartbeatRestController;
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 
@@ -24,6 +26,9 @@ public class MonitoringService {
 	
 	@Autowired
 	private MonitoringRestController controller;
+	
+	@Autowired
+	private HeartbeatRestController heartbeatController;
 	
 	private static final Logger log = LoggerFactory.getLogger(MonitoringService.class);
 	
@@ -91,6 +96,9 @@ public class MonitoringService {
 		executorService = null;
 		errorCounts = 0;
 	}
-	
+
+	public void ping(Application application) throws HeartbeatException{
+		heartbeatController.beat(application.getName(), application.getLocation());
+	}
 	
 }

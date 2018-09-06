@@ -25,26 +25,21 @@ public class DeploymentService {
 	
 	@Value("${agent.monitor.jar}")
 	protected String agentJar;
-
-	@Value("${agent.service.jar}")
-	protected String serviceJar;
 	
 	@Value("${server.port}")
 	protected String currentPort;
 	
-	public void deployMonitor(Monitor monitor) {
+	public void startMonitor(Monitor monitor) {
 		
 		Location location = monitor.getLocation();
-		Application app = monitor.getApplication();
 		String agentLoggingFile = monitor.getName() + monitor.getBorn() + "-log.txt";
 		String command = "java -jar -Dserver.port=" + location.getPort() 
 		        + " -Dagent.mode=monitoring -Dlogging.file=" 
-				+ agentLoggingFile + " -Dagent.name=" + monitor.getName() + " -Dagent.service.jar=" 
-		        + app.getName() + ".jar " //TODO: assumes that the application is packaged as jar and naming convention used for jar
+				+ agentLoggingFile + " -Dagent.name=" + monitor.getName() + " "
 		        + agentJar;
 		
 		if (location.getType().equals("local")) {
-			localDeployment.deploy(agentDirectory, command);
+			localDeployment.executeCommand(agentDirectory, command);
 		}
 	}
 	
@@ -58,10 +53,19 @@ public class DeploymentService {
 		        + " -Dlogging.file=" + loggingFile
 		        + " -Dmonitoring.port=" + currentPort 
 		        + " -Dname=" + name
-		        + " " + serviceJar;
+		        + " " + application.getJarName();
 		
 		// Applications are always deployed locally
-		localDeployment.deploy(agentDirectory, command);
+		localDeployment.executeCommand(agentDirectory, command);
+	}
+
+	public void killMonitorAndApplication(Monitor monitor) {
+		String killMonitorCommand = "kill $(ps -e | grep " + monitor.getName() + ")";
+		localDeployment.executeCommand(agentDirectory, killMonitorCommand);
+		//TODO: need to load applications in
+		Application app = monitor.getApplication();
+		String killApplicationCommand = "kill $(ps -e | grep " + app.getName() + ")";
+		localDeployment.executeCommand(agentDirectory, killApplicationCommand);
 	}
 	
 	

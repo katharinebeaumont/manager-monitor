@@ -9,12 +9,14 @@ import agent.common.Heartbeat;
 public class Application extends Entity implements Heartbeat {
 	
 	private String name;
+	private String jarName;
 	
 	@Relationship(type = "HAS_LOCATION", direction = Relationship.OUTGOING)
 	private Location location;
 	
-	public Application(String name) {
+	public Application(String name, String jarName) {
 		this.name = name;
+		this.jarName = jarName;
 	}
 	
 	public Application() {
@@ -23,6 +25,10 @@ public class Application extends Entity implements Heartbeat {
 	  
 	public String getName() {
 		return name;
+	}
+	
+	public String getJarName() {
+		return jarName;
 	}
 	
 	public void setLocation(Location location) {

@@ -22,21 +22,18 @@ public class HeartbeatRestController {
 	@Autowired
     private RestTemplate restTemplate;
 	
-	@Autowired
-	private StatusService status;
-	
-	public void beat(String name, Location loc) throws HeartbeatException {
+	public String beat(String name, Location loc) throws HeartbeatException {
 		
 		String url = loc.getPath() + ":" + loc.getPort() + "/heartbeat";
         log.debug("Checking on " + name + " on port " + loc.getPort());
         log.debug("URL: " + url);
         try {
         		String response = restTemplate.getForObject(url, String.class);
-        		log.info("Response is :" + response);
-        		status.heartbeat();
+        		log.info("Response from " + name + " is :" + response);
+        		return response;
         } catch (RestClientException ex) {
         		log.error("Error calling " + name);
-        		status.stoppedHeartbeat();
+        		log.error(ex.getMessage());
         		throw new HeartbeatException("Error with heartbeat for " +  name);
         }
 	}

@@ -1,5 +1,7 @@
 package agent.memory;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,12 @@ public class MonitoringEntityService {
     @Transactional
     public void deleteAll() {
     		monitorRepository.deleteAll();
+    }
+    
+    @Transactional(readOnly = true)
+    public Collection<Monitor> findAll(int limit) {
+    		Collection<Monitor> result = monitorRepository.getAll(limit);
+    		return result;
     }
     
 }

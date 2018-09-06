@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Q Learning: Agent</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Learnings </h1>
+    <tbody>
+    <p th:text="'There are ' + ${episodeCount} + ' episodes'"</p>
+    
+    <p th:text="'Current episode total value is ' + ${currentEpisodeValue}"</p>
+    
+	<form style="display:inline-block" th:action="@{'/agent/episode/' + ${agentName}}" th:object="${episode}" method="GET">
+    <select class="form-control" id="episode" name="episode">
+        <option disabled>Show steps for episode</option>
+        <tr th:each="episode : ${episodes}">
+        		<option th:value="${episode}" th:text="${episode}"</option>
+        	</tr>
+        	
+    </select>
+    	<button type="submit">Show Steps</button>
+    </form>
+	</div>
+	
+    <h2>Q Table</h1>
+    <table>
+    <thead>
+        <tr>
+            <th> State </th>
+            <th> Action </th>
+            <th> Value </th>
+        </tr>
+    </thead>
+    
+    <tbody>
+    <tr th:if="${stateViews.empty}">
+            <td colspan="2"> Nothing to show yet </td>
+        </tr>
+        <tr th:each="view : ${stateViews}">
+            <td><span th:text="${view.state}"> State </span></td>
+            <td><span th:text="${view.action}"> Action </span></td>
+            <td><span th:text="${view.value}"> Value </span></td>
+        </tr>
+    </tbody>
+	</table>
+</body>
+</html>

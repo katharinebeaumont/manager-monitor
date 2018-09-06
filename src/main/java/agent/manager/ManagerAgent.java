@@ -5,8 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import agent.common.HeartbeatService;
 import agent.deployment.DeploymentService;
 import agent.memory.ApplicationEntityService;
 import agent.memory.LocationEntityService;
@@ -22,7 +23,7 @@ import agent.memory.domain.Monitor;
  * The heartbeat allows the manager to collect feedback and send instructions to the monitor 
  * based on the feedback.
  */
-@Controller
+@RestController
 public class ManagerAgent {
 
 	private static final Logger log = LoggerFactory.getLogger(ManagerAgent.class);
@@ -31,19 +32,7 @@ public class ManagerAgent {
 	private ApplicationEntityService appService;
 	
 	@Autowired
-	private MonitoringEntityService monitoringAgentService;
-	
-	@Autowired
-	private LocationEntityService locationService;
-	
-	@Autowired
-	private LocationDecisionService locationDecision;
-	
-	@Autowired
-	private HeartbeatService heartbeatService;
-	
-	@Autowired
-	private DeploymentService deploymentService;
+	private ManagerAgentActions actions;
 	
 	/*
 	 * Start up: read in memory, look at applications I need to start. These will be 
@@ -59,44 +48,28 @@ public class ManagerAgent {
 		
 		for (Application e : col) {
 			// Check if there is a monitor for the application
-			Monitor monitor = monitoringAgentService.findForApplication(e.getName(), 1);
+			Monitor monitor = actions.getMonitorForApplication(e.getName()); 
 			log.info("Service is: " + e.getName());
 			// If not, generate and deploy a new monitoring agent.
 			if (monitor == null) {
 				log.info("Generating a new agent for: " + e.getName());
-				monitor = generateAndDeployMonitor(e);
+				try {
+					monitor = actions.generateMonitor(e);
+					actions.deployMonitor(monitor);
+				} catch (NoAvailableLocationException ex) {
+					log.error("Could not generate monitor for " + e.getName() + " as no locations available.");
+					return;
+				}
+			} else {
+				actions.startMonitorIfNotRunning(monitor);
 			}
 			
-			// Start a heartbeat with the monitor
-			heartbeatService.startHeartBeat(monitor);
+			actions.beginHeartbeat(monitor);
 		}
 	}
 
-	private Monitor generateAndDeployMonitor(Application application) {
-		
-		Location locationForMonitor = selectLocation(application);
-				
-		Monitor monitor = new Monitor(application.getName());
-		monitor.setResponsibility(application);
-		monitor.setLocation(locationForMonitor);
-		monitoringAgentService.save(monitor);
-		
-		deploymentService.deployMonitor(monitor);
-		return monitor;
-	}
-
-	private Location selectLocation(Application application) {
-		Location loc = locationService.findForApplication(application.getName());
-		if (loc == null) {
-			//Select location. Bind application to it
-			loc = locationDecision.select(application);
-			application.setLocation(loc);
-			appService.save(application);
-		} 
-		// Use the location of the application, but select a different port 
-		int port = loc.getPort() + 10; //TODO: assumes any port can be used where application is being deployed.
-		Location locationForMonitor = new Location(loc.getPath(), loc.getType(), port);
-		locationService.save(locationForMonitor);
-		return locationForMonitor;
+	@RequestMapping("/kill")
+	public void killAll() {
+		actions.killAll();
 	}
 }

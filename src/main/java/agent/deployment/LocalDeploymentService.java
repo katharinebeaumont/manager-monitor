@@ -22,7 +22,7 @@ public class LocalDeploymentService {
 	
 	private static final Logger log = LoggerFactory.getLogger(LocalDeploymentService.class);
 	
-	public void deploy(String directory, String commandStr) {
+	public void executeCommand(String directory, String commandStr) {
 
 		ProcessBuilder builder = new ProcessBuilder();
 		//This needs to be split into a String array
@@ -43,17 +43,17 @@ public class LocalDeploymentService {
 				StreamConsumer streamGobbler = 
 						  new StreamConsumer(process.getInputStream(), System.out::println);
 				Executors.newSingleThreadExecutor().submit(streamGobbler);
-				//int exitCode = process.waitFor();
-				log.info("Initialised monitor service.");
+				
+				log.info("Initialised application.");
 			} catch (IOException e1) {
-				log.error("Error loading monitor. Stack trace is:");
+				log.error("Error loading application. Stack trace is:");
 				e1.printStackTrace();
 			}
 		} else {
 			try {
 				// Start then pretty much abandon
 				builder.start();
-				log.info("Initialised monitor service.");
+				log.info("Initialised service.");
 			} catch (IOException e1) {
 				log.error("Error loading monitor. Stack trace is:");
 				e1.printStackTrace();
