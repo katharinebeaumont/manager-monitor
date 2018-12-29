@@ -13,7 +13,7 @@ public class QLearningStateViewEntityBuilder {
 		
 		List<QLearningStateViewEntity> entites = new ArrayList();
 		for (Action a: actionValues.keySet()) {
-			entites.add(new QLearningStateViewEntity(state, a.name(), actionValues.get(a).doubleValue()));
+			entites.add(new QLearningStateViewEntity(state, a.toString(), actionValues.get(a).doubleValue()));
 		}
 		return entites;
 	}

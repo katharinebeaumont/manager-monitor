@@ -1,9 +1,19 @@
 package agent.deployment;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import agent.manager.PidProcessingService;
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 import agent.memory.domain.Monitor;
@@ -16,6 +26,8 @@ import agent.memory.domain.Monitor;
 @Service
 public class DeploymentService {
 
+	private static final Logger log = LoggerFactory.getLogger(DeploymentService.class);
+	
 	@Autowired
 	LocalDeploymentService localDeployment;
 	
@@ -39,7 +51,28 @@ public class DeploymentService {
 		        + agentJar;
 		
 		if (location.getType().equals("local")) {
-			localDeployment.executeCommand(agentDirectory, command);
+			//Create subfolder in directory, copy Jar file there
+			String newDir = agentDirectory + monitor.getName();
+			String targetDir = newDir + "/" + agentJar;
+			File f = new File(newDir);
+			if (!f.exists() && f.mkdirs()) {
+				log.info("Created " + newDir);
+			} else if (f.exists()){
+				log.info("Not creating " + newDir + " as already exists");
+			} else {
+				log.error("Error creating " + newDir);
+			}
+			
+			Path source =  Paths.get(agentDirectory + agentJar);
+			Path target =  Paths.get(targetDir);
+			try {
+				Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+			
+			} catch (IOException e) {
+				log.error("Error copying from " + source + " to " + target);
+			}
+			
+			localDeployment.executeCommand(newDir, command);
 		}
 	}
 	
@@ -60,11 +93,31 @@ public class DeploymentService {
 	}
 
 	public void killMonitorAndApplication(Monitor monitor) {
-		String killMonitorCommand = "kill $(ps -e | grep " + monitor.getName() + ")";
+		String monitorIdentifier = monitor.getPid();
+		
+		
+		if (monitorIdentifier.isEmpty()) {
+			log.error("Error! Could not kill " + monitor.getName() + " with PID as I don't have it.");
+			log.error("Trying to kill it by name instead but this is dangerous and doesn't always work!");
+			monitorIdentifier = "$(ps -e | grep " + monitor.getName() + ")";
+		}
+		
+		String killMonitorCommand = "kill " + monitorIdentifier;
+		
+		log.info("Executing kill command: " + killMonitorCommand);
 		localDeployment.executeCommand(agentDirectory, killMonitorCommand);
 		//TODO: need to load applications in
 		Application app = monitor.getApplication();
+		String pid = app.getPid();
 		String killApplicationCommand = "kill $(ps -e | grep " + app.getName() + ")";
+		if (pid != null && !pid.isEmpty()) {
+			killApplicationCommand = "kill " + pid;
+		} else {
+			log.error("Error! No PID for " + app.getName() + " in the database.");
+			log.error("Trying to kill it by name instead but this is dangerous and doesn't always work!");
+		}
+		
+		log.info("Executing kill command: " + killApplicationCommand);
 		localDeployment.executeCommand(agentDirectory, killApplicationCommand);
 	}
 	

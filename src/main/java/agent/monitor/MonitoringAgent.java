@@ -39,15 +39,32 @@ public class MonitoringAgent {
 	@Autowired
 	private MonitoringService monitoringService;
 	
+	@Autowired
+	private ApplicationPidController appPidService;
+	
 	@Value("${agent.name}")
 	private String name;
+	
+	@Value("${server.port}")
+	private int port;
+	
+	@Value("${experiment}")
+	private int experiment;
 	
 	public void startup() {
 		log.info("Starting monitoring agent. My name is " + name);
 		//Check what have been assigned in Neo4J graph and start up
 		log.info("Figuring out who I am responsible for.");
 		Application application = loadApplication();
-		log.info("Initialising " + application.getName());
+		
+		//Experiment
+		if (experiment > 0) {
+			if (experiment == 2 && port == 8010) {
+				log.info("Starting monitoring agent in experiment mode 2: faulty port");
+				log.info("Not deploying application.");
+				return;
+			}
+		}
 		
 		//See if the application is running already
 		try {

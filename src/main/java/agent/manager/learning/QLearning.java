@@ -6,6 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import agent.memory.domain.Location;
+
 
 /**
  * One per agent
@@ -27,7 +29,7 @@ public class QLearning {
 	
 	// The last action A gave us the state S
 	// This is initialised to DO_NOTHING
-	private Action A = Action.DO_NOTHING;
+	private Action A = new Action(ActionEnum.DO_NOTHING);
 	// The initial state is not stored in the Q table
 	private State S = State.initialState();
 	
@@ -43,7 +45,7 @@ public class QLearning {
 	}
 	
 	public void reset() {
-		A = Action.DO_NOTHING;
+		A = new Action(ActionEnum.DO_NOTHING);
 		S = State.initialState();
 		totalValue = 0;
 		episodeSteps.add(new ArrayList<String>());
@@ -73,8 +75,11 @@ public class QLearning {
 	 * 
 	 * Then we choose A from S using the policy
 	 * We return the Action to the QLearningController, which is executed.
+	 * 
+	 * At each step, we need to feed in the available locations as this will change
+	 * over time
 	 */
-	public Action episodeStep(String feedback) {
+	public Action episodeStep(String feedback, List<Location> availableLocations) {
 		
 		State S_next = processState(feedback);
 		//Record reward from last state
@@ -83,7 +88,7 @@ public class QLearning {
 		
 		//We don't always get feedback from the envirnonment, which is signified by a reward of 0.
 		if (R == 0) {
-			return Action.DO_NOTHING;
+			return new Action(ActionEnum.DO_NOTHING);
 		}
 		
 		if (!S.equals(State.initialState())) {
@@ -99,7 +104,7 @@ public class QLearning {
 		}
 		
 		// Select A' from S'
-		Action A_next = chooseNextAction(S_next);
+		Action A_next = chooseNextAction(S_next, availableLocations);
 		
 		//Update the values
 		A = A_next;
@@ -108,7 +113,7 @@ public class QLearning {
 		//Take the next Action
 		return A_next;
 	}
-
+	
 	private State processState(String feedback) {
 		try {
 			return FeedbackProcessor.processState(feedback);
@@ -138,36 +143,44 @@ public class QLearning {
 		return true;
 	}
 
-	private Action chooseNextAction(State S_next) {
+	private Action chooseNextAction(State S_next, List<Location> availableLocations) {
 		if (Math.random() < epsilon) {
-			return pickActionAtRandom();
+			return pickActionAtRandom(availableLocations);
 		}
-		return pickBestAction(S_next);
+		return pickBestAction(S_next, availableLocations);
 	}
 
-	private Action pickActionAtRandom() {
-		Action[] actions = Action.values();
+	private Action pickActionAtRandom(List<Location> availableLocations) {
+		ActionEnum[] actions = ActionEnum.values();
 		int randomAction = (int) (Math.random() * actions.length);
-		Action chosenAction = actions[randomAction];
+		ActionEnum chosenAction = actions[randomAction];
 		
-		if (preferNoAction && !chosenAction.equals(Action.DO_NOTHING)) {
+		if (preferNoAction && !chosenAction.equals(ActionEnum.DO_NOTHING)) {
 			//Weight do nothing 10x higher than the alternative action
 			int existingActionOrNone = (int) (Math.random() * 10);
 			if (existingActionOrNone > 0) {
-				chosenAction = Action.DO_NOTHING;
+				chosenAction = ActionEnum.DO_NOTHING;
+				return new Action(chosenAction);
 			}
 		}
+		if (chosenAction.equals(ActionEnum.DO_NOTHING)) {
+			return new Action(chosenAction);
+		}
 		
-		return chosenAction;
+		int randomLocation = (int) (Math.random() * availableLocations.size());
+		Location loc = availableLocations.get(randomLocation);
+		
+		return new Action(chosenAction, loc);
 	}
 	
-	private Action pickBestAction(State S_next) {
+
+	private Action pickBestAction(State S_next, List<Location> availableLocations) {
 		//If there are two actions that are equally good, this picks the last one to be added
 		// to the hashmap.
 		// If there is none, fallback on random.
 		Action A_next = qTable.findBestActionForState(S_next);
 		if (A_next == null) {
-			return pickActionAtRandom();
+			return pickActionAtRandom(availableLocations);
 		}
 		return A_next;
 	}

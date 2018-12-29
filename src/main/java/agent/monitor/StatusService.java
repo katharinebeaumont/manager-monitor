@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import agent.monitor.metrics.EventStore;
 
 /**
- * TODO: write different status types e.g.
- *  - 0. Off
- *  - 1. Running
- *  - 2. Error? 
+
  *
  */
 @Service

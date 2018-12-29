@@ -44,7 +44,7 @@ public class LocalDeploymentService {
 						  new StreamConsumer(process.getInputStream(), System.out::println);
 				Executors.newSingleThreadExecutor().submit(streamGobbler);
 				
-				log.info("Initialised application.");
+				log.debug("Initialised application.");
 			} catch (IOException e1) {
 				log.error("Error loading application. Stack trace is:");
 				e1.printStackTrace();
@@ -53,7 +53,7 @@ public class LocalDeploymentService {
 			try {
 				// Start then pretty much abandon
 				builder.start();
-				log.info("Initialised service.");
+				log.debug("Initialised service.");
 			} catch (IOException e1) {
 				log.error("Error loading monitor. Stack trace is:");
 				e1.printStackTrace();

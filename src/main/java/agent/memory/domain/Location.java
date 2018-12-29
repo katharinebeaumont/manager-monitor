@@ -43,4 +43,9 @@ public class Location extends Entity {
 	public int getPort() {
 		return port;
 	}
+	
+	@Override
+	public String toString() {
+		return "Type: " + type + " Path:" + path + ":" + port;
+	}
 }

@@ -9,7 +9,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.ApplicationPidFileWriter;
+import org.springframework.boot.system.ApplicationPid;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +45,9 @@ public class AgentApplication {
 		for(String arg:args) {
             System.out.println(arg);
         }
-		SpringApplication.run(AgentApplication.class, args);
+		SpringApplication app = new SpringApplication(AgentApplication.class);
+		app.addListeners(new ApplicationPidFileWriter());
+		app.run(args);
 	}
 	
 	@Autowired
@@ -71,8 +76,8 @@ public class AgentApplication {
 		log.info("Initialising .... ");
 		
 		if (agentMode.equals("manager")) {
-			if (experiment == 0) {
-				log.info("Starting experiment 0: automatically deploy agent and mock service locally.");
+			if (experiment == 1) {
+				log.info("Starting experiment 1: automatically deploy agent and mock service locally.");
 				log.info("Deleting all slaves");
 				slaveService.deleteAll();
 				
@@ -95,6 +100,27 @@ public class AgentApplication {
 				locService.save(loc2);
 				locService.save(loc3);
 				locService.save(loc4);
+			}
+			if (experiment == 2) {
+				log.info("Starting experiment 2: deploy agent to a choice of faulty and non-faulty host.");
+				log.info("Deleting all slaves");
+				slaveService.deleteAll();
+				
+				log.info("Deleting all locations");
+				locService.deleteAll();
+				
+				log.info("Deleting all applications");
+				appService.deleteAll();
+				
+				Application entity1 = new Application("mockService", "mockService.jar");
+				appService.save(entity1);
+				log.info("Saved new application " + entity1.getName());
+				
+				log.info("Creating 2 possible locations");
+				Location loc1 = new Location("http://localhost", "local", 8000);
+				Location loc2 = new Location("http://localhost", "local", 9000);
+				locService.save(loc1);
+				locService.save(loc2);
 			}
 			
 			log.info("Staring in mode: manager");

@@ -1,5 +1,7 @@
 package agent.manager;
 
+
+import java.util.List;
 import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +49,23 @@ public class ManagerAgent {
 		log.debug("Collection is size " + col.size());
 		
 		for (Application e : col) {
+			// Check if there is a location for the application
+			if (e.getLocation() == null) {
+				//if not, set one
+				List<Location> locations = actions.getAvailableLocations();
+				Location loc = locations.get(0);
+				log.info("Setting location for " + e.getName() + " of " + loc.toString());
+				e.setLocation(loc);
+				appService.save(e);
+			}
 			// Check if there is a monitor for the application
-			Monitor monitor = actions.getMonitorForApplication(e.getName()); 
-			log.info("Service is: " + e.getName());
+			Monitor monitor = actions.getMonitorForApplication(e.getName());
+						
 			// If not, generate and deploy a new monitoring agent.
 			if (monitor == null) {
-				log.info("Generating a new agent for: " + e.getName());
+				log.info("Generating a new agent for " + e.getName());
 				try {
-					monitor = actions.generateMonitor(e);
+					monitor = actions.generateMonitorAndAssignLocation(e);
 					actions.deployMonitor(monitor);
 				} catch (NoAvailableLocationException ex) {
 					log.error("Could not generate monitor for " + e.getName() + " as no locations available.");
@@ -64,12 +75,7 @@ public class ManagerAgent {
 				actions.startMonitorIfNotRunning(monitor);
 			}
 			
-			actions.beginHeartbeat(monitor);
+			actions.beginHeartbeatAndGetPid(monitor);
 		}
-	}
-
-	@RequestMapping("/kill")
-	public void killAll() {
-		actions.killAll();
 	}
 }

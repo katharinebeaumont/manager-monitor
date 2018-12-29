@@ -15,7 +15,7 @@ public class QTableTest {
 		QTable qTable = new QTable(alpha, gamma, "bob");
 		int R = 10;
 		State S = new State(new String[] {"State1"});
-		Action A = Action.DO_NOTHING;
+		Action A = new Action(ActionEnum.DO_NOTHING);
 		State S_next = new State(new String[] {"State2"});
 		
 		//Q(S,A) + alpha[R + (gamma * max Q(S',a) - Q(S,A)]
@@ -38,7 +38,7 @@ public class QTableTest {
 		QTable qTable = new QTable(alpha, gamma, "bob");
 		int R = 10;
 		State S = new State(new String[] {"State1"});
-		Action A = Action.DO_NOTHING;
+		Action A = new Action(ActionEnum.DO_NOTHING);
 		State S_next = new State(new String[] {"State2"});
 		
 		//Q(S,A) + alpha[R + (gamma * max Q(S',a) - Q(S,A)]
@@ -51,7 +51,7 @@ public class QTableTest {
 		//Now add another value
 		int R_next = -2;
 		State S_next_next = new State(new String[] {"State3"});
-		Action A_next = Action.DUPLICATE_AND_DEPLOY;
+		Action A_next = new Action(ActionEnum.DUPLICATE_AND_DEPLOY);
 		qTable.add(S_next, S_next_next, A_next, R_next);
 		//Q(S_next,A_next) + alpha[R_next + (gamma * max Q(S_next_next',a) - Q(S_next,A_next)]
 		// = 0 + 0.5(-2 + (0.7*0) - 0)
@@ -76,10 +76,10 @@ public class QTableTest {
 		QTable qTable = new QTable(alpha, gamma, "bob");
 		int R = 10;
 		State S = new State(new String[] {"State1"});
-		Action A = Action.DO_NOTHING;
+		Action A = new Action(ActionEnum.DO_NOTHING);
 		State S_next = new State(new String[] {"State2"});
 		
-		Action A_2 = Action.DUPLICATE_AND_DEPLOY;
+		Action A_2 = new Action(ActionEnum.DUPLICATE_AND_DEPLOY);
 		int R_2 = -1;
 		
 		//Act
@@ -89,7 +89,7 @@ public class QTableTest {
 		Action bestAction = qTable.findBestActionForState(S);
 		
 		//Assert
-		assertEquals(Action.DO_NOTHING, bestAction);
+		assertEquals(new Action(ActionEnum.DO_NOTHING), bestAction);
 		
 	}
 	
@@ -98,10 +98,10 @@ public class QTableTest {
 		QTable qTable = new QTable(alpha, gamma, "bob");
 		int R = -1;
 		State S = new State(new String[] {"State1"});
-		Action A = Action.DO_NOTHING;
+		Action A = new Action(ActionEnum.DO_NOTHING);
 		State S_next = new State(new String[] {"State2"});
 		
-		Action A_2 = Action.DUPLICATE_AND_DEPLOY;
+		Action A_2 = new Action(ActionEnum.DUPLICATE_AND_DEPLOY);
 		int R_2 = -1;
 		
 		//Act

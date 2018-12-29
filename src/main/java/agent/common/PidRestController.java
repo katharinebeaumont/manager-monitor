@@ -8,35 +8,27 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import agent.memory.domain.Location;
-import agent.memory.domain.Monitor;
-import agent.monitor.StatusService;
 
-/**
- * Rest Controller that sends a request to monitoring agents and collects feedback.
- */
 @RestController
-public class HeartbeatRestController {
+public class PidRestController {
 	
-	private static final Logger log = LoggerFactory.getLogger(HeartbeatRestController.class);
+	private static final Logger log = LoggerFactory.getLogger(PidRestController.class);
 	
 	@Autowired
     private RestTemplate restTemplate;
 	
-	public String beat(String name, Location loc) throws HeartbeatException {
-		
-		String url = loc.getPath() + ":" + loc.getPort() + "/heartbeat";
-        log.debug("Checking on " + name + " on port " + loc.getPort());
+	public String requestPid(String name, Location loc) throws HeartbeatException {
+		String url = loc.getPath() + ":" + loc.getPort() + "/pid";
+        log.info("Requesting PID from " + name + " on port " + loc.getPort());
         log.debug("URL: " + url);
         try {
         		String response = restTemplate.getForObject(url, String.class);
-        		log.info(name + " heartbeat response is :" + response);
+        		log.info("Response from " + name + " is :" + response);
         		return response;
         } catch (RestClientException ex) {
         		log.error("Error calling " + name);
         		log.error(ex.getMessage());
-        		throw new HeartbeatException("Error with heartbeat for " +  name);
+        		throw new HeartbeatException("Error with PID for " +  name);
         }
 	}
-	
 }
-

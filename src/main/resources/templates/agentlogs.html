@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Q Learning: Agent Logs</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Logs </h1>
+    <tbody>
+    
+    <p th:text="'Logging by the Manager Agent concerning ' + ${agentName}"</p>
+    
+    <table>
+    <tbody>
+     <tr th:if="${logView.logLines.empty}">
+            <td colspan="2"> No logs to show yet </td>
+        </tr>
+        <tr th:each="view : ${logView.logLines}">
+            <td><span th:text="${view}"> Log </span></td>
+        </tr>
+    </tbody>
+	</table>
+    
+</body>
+</html>

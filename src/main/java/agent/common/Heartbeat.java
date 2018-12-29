@@ -7,4 +7,6 @@ public interface Heartbeat {
 	Location getLocation();
 	
 	String getName();
+	
+	String getPid();
 }

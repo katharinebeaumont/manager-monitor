@@ -51,7 +51,7 @@ public class HeartbeatService {
 		controller.beat(heartbeat.getName(), heartbeat.getLocation());
 	}
 	
-	public void startHeartBeat(Heartbeat heartbeat) {
+	public void startHeartbeat(Heartbeat heartbeat) {
 
 		final ScheduledExecutorService scheduler =
 			     Executors.newScheduledThreadPool(1);

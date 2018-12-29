@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import agent.manager.ManagerAgentActions;
 import agent.memory.domain.Location;
 
+
 @Controller
 public class QLearningController {
 
@@ -39,6 +40,9 @@ public class QLearningController {
 	@Value("${qlearning.disable}")
 	private boolean disable;
 	
+	@Value("${experiment}")
+	private int experiment;
+	
 	public void process(String agentName, Location loc, String response) {
 		if (disable) {
 			log.info("Q learning is disabled: not processing " + response);
@@ -59,21 +63,22 @@ public class QLearningController {
 			qLearning = new QLearning(agentName, lowerRewardThreshold, gamma, alpha, epsilon, preferNoAction);
 		}
 		
-		Action actionToTake = qLearning.episodeStep(response);
+		Action actionToTake = qLearning.episodeStep(response, actions.getAvailableLocations());
 		qlearningProcesses.put(agentName, qLearning);
 		if (actionToTake != null) {
-			takeAction(actionToTake, agentName, loc);
+			takeAction(actionToTake, agentName);
 		}
 	}
 	
-	private void takeAction(Action actionToTake, String agentName, Location loc) {
+	private void takeAction(Action actionToTake, String agentName) {
 		log.info(agentName + " taking action " + actionToTake.toString());
-		if (actionToTake.equals(Action.DO_NOTHING)) {
+		ActionEnum ae = actionToTake.getActionEnum();
+		if (ae.equals(ActionEnum.DO_NOTHING)) {
 			//Do nothing
-		} else if (actionToTake.equals(Action.DUPLICATE_AND_DEPLOY)) {
-			actions.duplicatedAndDeploy(agentName);
-		} else if (actionToTake.equals(Action.SHUTDOWN_AND_REDEPLOY)) {
-			actions.shutdownAndRedeploy(agentName);
+		} else if (ae.equals(ActionEnum.DUPLICATE_AND_DEPLOY) && experiment != 2) {
+			actions.duplicatedAndDeploy(agentName, actionToTake.getLocation());
+		} else if (ae.equals(ActionEnum.SHUTDOWN_AND_REDEPLOY)) {
+			actions.shutdownAndRedeploy(agentName, actionToTake.getLocation());
 		} else {
 			throw new RuntimeException("Action " + actionToTake + " not implemented.");
 		}

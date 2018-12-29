@@ -29,9 +29,12 @@ public class QLearningViewController {
 	@Autowired
 	private QLearningController qLearningController;
 	
+	@Autowired
+	private QLearningLogViewService logViewService;
+	
 	@GetMapping("/agents")
 	public String getAgentNames(Model model) {
-		log.info("Creating view");
+		log.debug("Creating agent names view");
 		//Drop down option to select agent by name
 		HashMap<String, QLearning> qTables = qLearningController.getQLearningProcesses();
 		List<QLearningAgentViewEntity> agentNames = new ArrayList(); 
@@ -44,7 +47,7 @@ public class QLearningViewController {
 			}
 			
 		} else {
-			log.info("Q tables is null");
+			log.debug("Q tables is null");
 		}
 		
 		model.addAttribute("agentNames", agentNames);
@@ -54,7 +57,7 @@ public class QLearningViewController {
 	
 	@GetMapping("/agent/learning/{agentName}")
 	public String showLearningsForAgent(@PathVariable("agentName") String agentName, Model model) {
-		log.info("Creating view for " + agentName);
+		log.debug("Creating view for " + agentName);
 		//Drop down option to select agent by name
 		HashMap<String, QLearning> qTables = qLearningController.getQLearningProcesses();
 		List<QLearningStateViewEntity> stateViews = new ArrayList<>();
@@ -99,7 +102,7 @@ public class QLearningViewController {
 			@RequestParam("episode") String episodeStr, Model model) {
 		
 		int episode = parseEpisode(episodeStr);
-		log.info("Creating episode view for " + agentName + ", episode " + episode);
+		log.debug("Creating episode view for " + agentName + ", episode " + episode);
 		int stepCount = 0;
 		
 		HashMap<String, QLearning> qTables = qLearningController.getQLearningProcesses();
@@ -124,6 +127,20 @@ public class QLearningViewController {
 		
 		return "agentepisode";
 		
+		
+	}
+	
+	@GetMapping("/agent/logs/{agentName}")
+	public String showLogsForAgent(@PathVariable("agentName") String agentName,
+			Model model) {
+		
+		log.debug("Retrieving logs view for " + agentName);
+		
+		QLearningLogView logView = logViewService.build(agentName);
+		model.addAttribute("agentName", agentName);
+		model.addAttribute("logView", logView);
+		
+		return "agentlogs";
 		
 	}
 	

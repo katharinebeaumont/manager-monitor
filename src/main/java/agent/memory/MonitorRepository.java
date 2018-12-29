@@ -13,9 +13,10 @@ import agent.memory.domain.Monitor;
 @Repository
 public interface MonitorRepository extends Neo4jRepository<Monitor, Long> {
 
-	Monitor findByName(String name);
+	@Query("MATCH (m:Monitor {name: {monitorName}}) RETURN m LIMIT 1")
+	Monitor findByName(@Param("monitorName") String name);
 	
-	@Query("MATCH (a:Application {name: '{nameStr}'})--(m:Monitor) RETURN m LIMIT {limit}")
+	@Query("MATCH (a:Application {name: {nameStr}})--(m:Monitor) RETURN m LIMIT {limit}")
     Monitor monitorForApplication(@Param("nameStr") String name, @Param("limit") int limit);
 
 	@Query("MATCH (m:Monitor) RETURN m LIMIT {limit}")

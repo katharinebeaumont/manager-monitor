@@ -28,6 +28,9 @@ public class MonitoringService {
 	private MonitoringRestController controller;
 	
 	@Autowired
+	private ApplicationPidController pidController;
+	
+	@Autowired
 	private HeartbeatRestController heartbeatController;
 	
 	private static final Logger log = LoggerFactory.getLogger(MonitoringService.class);
@@ -54,10 +57,7 @@ public class MonitoringService {
 
 		String[] metricsFilterArray = metricsFilter.split(";");
 		
-		final ScheduledExecutorService scheduler =
-			     Executors.newScheduledThreadPool(1);
-		
-		executorService = scheduler;
+		executorService = Executors.newScheduledThreadPool(1);
 		
 		class MonitoringTask implements Runnable {
 			Application a;
@@ -86,10 +86,38 @@ public class MonitoringService {
 		
 	    final Runnable beater = new MonitoringTask(application);
 	    TimeUnit timeUnit = TimeUnit.SECONDS;
-	    scheduler.scheduleAtFixedRate(beater, delay, interval, timeUnit);
+	    executorService.scheduleAtFixedRate(beater, delay, interval, timeUnit);
 	    log.info("Gathering metrics from " + application.getName() + " in " + delay + " " + timeUnit.toString());
+	
+	    getApplicationPid(application);
 	}
 	
+	private void getApplicationPid(Application application) {
+		final ScheduledExecutorService scheduler =
+			     Executors.newScheduledThreadPool(1);
+		
+		class ApplicationPidTask implements Runnable {
+			Application a;
+			ApplicationPidTask(Application a) {this.a = a;}
+			public void run() {
+				
+				Location location = a.getLocation();
+				
+					try {
+						pidController.getAppPid(a);
+						log.info("Got the pid for the application: " + a.getName());
+					} catch (Exception e){
+						log.error("Error with getting pid for " + a.getName() + " on port: "
+								+ a.getLocation().getPort());
+					}
+			}
+		}
+		
+		
+	    final Runnable pidTask = new ApplicationPidTask(application);
+	    scheduler.schedule(pidTask, delay, TimeUnit.SECONDS);
+	}
+
 	private void stopMonitoring() {
 		ScheduledExecutorService scheduler = executorService;
 		scheduler.shutdown();

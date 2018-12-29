@@ -33,7 +33,7 @@ public class QLearningEpisodeView {
 		return episodeSteps;
 	}
 	
-	public double totalValue() {
+	public double getTotalValue() {
 		return totalValue;
 	}
 }

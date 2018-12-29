@@ -21,7 +21,10 @@
     </select>
     	<button type="submit">Show Steps</button>
     </form>
-	</div>
+    
+    	<form style="display:inline-block" th:action="@{'/agent/logs/' + ${agentName}}" method="GET">
+    	<button type="submit">Show Logs</button>
+    </form>
 	
     <h2>Q Table</h1>
     <table>

@@ -10,6 +10,7 @@ public class Monitor extends Entity implements Heartbeat {
 	
    private String name;
    private long born;
+   private String pid;
 
    @Relationship(type = "RESPONSIBLE_FOR", direction = Relationship.OUTGOING)
    private Application application;
@@ -34,20 +35,28 @@ public class Monitor extends Entity implements Heartbeat {
 	   return born;
    }
    
-	public Location getLocation() {
-		return location;
-	}
-	   
-	public Application getApplication() {
-		return application;
-	}
-	
-	public void setResponsibility(Application application) {
-		this.application = application;
-	}
+   public String getPid() {
+	   return pid;
+   }
    
-	public void setLocation(Location location) {
-		this.location = location;
-	}
+   public void setPid(String pid) {
+	   this.pid = pid;
+   }
+   
+   public Location getLocation() {
+	   return location;
+   }
+	   
+   public Application getApplication() {
+	   return application;
+   }
+	
+   public void setResponsibility(Application application) {
+	   this.application = application;
+   }
+   
+   public void setLocation(Location location) {
+	   this.location = location;
+   }
 }
 

@@ -3,16 +3,16 @@ spring.data.neo4j.uri=bolt://localhost:7687
 spring.data.neo4j.username=neo4j
 spring.data.neo4j.password=thesis
 
-logging.file=twitterClientlogs.txt
+logging.file=managerAgentLogs.txt
+logging.level.org.neo4j=ERROR
 
 agent.mode=manager
 agent.name=manager
 agent.monitor.jar=monitor.jar
 agent.directory=/Users/katharine/Documents/UCD/Semester \3/ms-with-agents/
-agent.heartbeat.interval = 1
+agent.heartbeat.interval = 10
 agent.heartbeat.errorThreshold = 3
 agent.heartbeat.initialDelay = 45
-agent.service.jar=service.jar
 
 spring.boot.admin.username=admin
 spring.boot.admin.password=admin
@@ -22,3 +22,12 @@ monitoring.metrics.filter=jvm.memory.used;jvm.memory.max;system.cpu.usage
 monitoring.interval = 3
 monitoring.errorThreshold = 3
 monitoring.initialDelay = 45
+
+qlearning.lowerRewardThreshold = -50
+qlearning.gamma = 0.7
+qlearning.alpha = 0.8
+qlearning.epsilon = 0.1
+qlearning.preferNoAction = true
+qlearning.disable = false
+
+experiment=2

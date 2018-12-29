@@ -10,6 +10,7 @@ public class Application extends Entity implements Heartbeat {
 	
 	private String name;
 	private String jarName;
+	private String pid;
 	
 	@Relationship(type = "HAS_LOCATION", direction = Relationship.OUTGOING)
 	private Location location;
@@ -37,5 +38,13 @@ public class Application extends Entity implements Heartbeat {
 	
 	public Location getLocation() {
 		return location;
+	}
+	
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+	
+	public String getPid() {
+		return pid;
 	}
 }
