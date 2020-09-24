@@ -33,7 +33,8 @@ public class StatusService {
 		boolean error = false;
 		
 		for (String type: eventTypes) {
-			String value = eventStore.removeFirst(type);
+			//String value = eventStore.removeFirst(type);
+			String value = eventStore.removeLast(type);
 			
 			if (!value.isEmpty()) {
 				error = analyse(type, value);
@@ -48,7 +49,7 @@ public class StatusService {
 		String response = status;
 		if (!info.isEmpty()) {
 			response += ";" + info;
-		} else if (info.isEmpty() && status.equals("-10")) {
+		} else if (info.isEmpty() && status.equals("-1")) {
 			response += ";" + "system is down";
 		}
 		return response;
@@ -123,13 +124,13 @@ public class StatusService {
 
 	private void buildStatus(boolean error, String info) {
 		if (!activeHeartBeat) {
-			status = "-10"; //Down
+			status = "-1"; //Down
 		} else if (error) {
 			status = "-1"; //Error
 		} else if (info.isEmpty() ){
 			status = "0"; //No new information 
 		} else {
-			status = "2"; //Up and running
+			status = "1"; //Up and running
 		}
 	}
 }

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import agent.manager.PidProcessingService;
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 import agent.memory.domain.Monitor;
@@ -88,28 +87,55 @@ public class DeploymentService {
 		        + " -Dname=" + name
 		        + " " + application.getJarName();
 		
-		// Applications are always deployed locally
-		localDeployment.executeCommand(agentDirectory, command);
+		if (location.getType().equals("local")) {
+			//Create subfolder in directory, copy Jar file there
+			String newDir = agentDirectory + application.getName();
+			String targetDir = newDir + "/" + application.getJarName();
+			File f = new File(newDir);
+			if (!f.exists() && f.mkdirs()) {
+				log.info("Created " + newDir);
+			} else if (f.exists()){
+				log.info("Not creating " + newDir + " as already exists");
+			} else {
+				log.error("Error creating " + newDir);
+			}
+			
+			Path source = Paths.get(agentDirectory + application.getJarName());
+			Path target = Paths.get(targetDir);
+			try {
+				Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+			
+			} catch (IOException e) {
+				log.error("Error copying from " + source + " to " + target);
+			}
+			
+			localDeployment.executeCommand(newDir, command);
+		}
 	}
 
-	public void killMonitorAndApplication(Monitor monitor) {
+	public void killMonitor(Monitor monitor) {
 		String monitorIdentifier = monitor.getPid();
-		
+		Location monitorLoc = monitor.getLocation();
+		int monitorPort = monitorLoc.getPort();
 		
 		if (monitorIdentifier.isEmpty()) {
 			log.error("Error! Could not kill " + monitor.getName() + " with PID as I don't have it.");
-			log.error("Trying to kill it by name instead but this is dangerous and doesn't always work!");
-			monitorIdentifier = "$(ps -e | grep " + monitor.getName() + ")";
+			log.error("Trying to kill it by port instead but this is dangerous and doesn't always work!");
+			monitorIdentifier = "$(ps -e | grep Dserver.port=" + monitorPort + ")";
 		}
 		
 		String killMonitorCommand = "kill " + monitorIdentifier;
 		
 		log.info("Executing kill command: " + killMonitorCommand);
 		localDeployment.executeCommand(agentDirectory, killMonitorCommand);
-		//TODO: need to load applications in
-		Application app = monitor.getApplication();
+	}
+	
+	public void killApplication(Application app) {
 		String pid = app.getPid();
-		String killApplicationCommand = "kill $(ps -e | grep " + app.getName() + ")";
+		Location appLoc = app.getLocation();
+		int appPort = appLoc.getPort();
+		
+		String killApplicationCommand = "kill $(ps -e | grep Dserver.port=" + appPort + ")";
 		if (pid != null && !pid.isEmpty()) {
 			killApplicationCommand = "kill " + pid;
 		} else {
@@ -120,6 +146,4 @@ public class DeploymentService {
 		log.info("Executing kill command: " + killApplicationCommand);
 		localDeployment.executeCommand(agentDirectory, killApplicationCommand);
 	}
-	
-	
 }

@@ -30,6 +30,7 @@ public class EventStore {
 		}
 		values.addLast(e.getValue());
 		events.put(e.getName(), values);
+		log.info("#Added " + values.size() + " to Event Store for " + event);
 	}
 	
 	public Set<String> getEventNames() {
@@ -41,6 +42,30 @@ public class EventStore {
 		String retval = "";
 		try {
 			retval = values.removeFirst();
+			log.info("Removing and returning " + retval);
+		} catch (NullPointerException | NoSuchElementException ex) {
+			log.debug("No latest value for " + name + ": returning empty String.");
+		}
+		return retval; 
+	}
+	
+	/*
+	 * Deals with the fact that the event store can fill up very quickly
+	 * and events aren't removed fast enough. Want current information, so 
+	 * just remove the events.
+	 */
+	public String removeLast(String name) {
+		LinkedList<String> values = events.get(name);
+		String retval = "";
+		try {
+			retval = values.removeLast();
+			log.info("Removing and returning " + retval);
+			if (values.size() > 10) {
+				log.info("Have 10 old events for " + name + ". Clearing out previous events");
+				values = new LinkedList<String>();
+				events.put(name, values);
+			}
+			
 		} catch (NullPointerException | NoSuchElementException ex) {
 			log.debug("No latest value for " + name + ": returning empty String.");
 		}

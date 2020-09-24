@@ -9,15 +9,29 @@ public class Location extends Entity {
 	//Type: local, remote, docker etc
     private String type;
     private int port;
+    //Fix for local locations: say if it is a sub-location
+    // i.e. a different port on the same location as an application
+    private boolean sublocation;
 
     public Location() {
-    		// Empty constructor required as of Neo4j API 2.0.5
+    	// Empty constructor required as of Neo4j API 2.0.5
+    }
+    
+    /*
+     * For testing
+     */
+    public Location(String simpleLocation) {
+    	this.path = simpleLocation;
+    	this.type = "simple";
+    	this.port = 0;
+		this.sublocation = false;
     }
 	
-    public Location(String path, String type, int port) {
+    public Location(String path, String type, int port, boolean sublocation) {
 		this.path = path;
 		this.type = type;
 		this.port = port;
+		this.sublocation = sublocation;
 	}
 	
 	public void setPath(String path) {
@@ -46,6 +60,6 @@ public class Location extends Entity {
 	
 	@Override
 	public String toString() {
-		return "Type: " + type + " Path:" + path + ":" + port;
+		return "Type:" + type + " Path:" + path + ":" + port;
 	}
 }

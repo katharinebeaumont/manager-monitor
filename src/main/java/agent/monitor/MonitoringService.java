@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import agent.common.HeartbeatException;
 import agent.common.HeartbeatRestController;
+import agent.learning.QLearningController;
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 
@@ -32,6 +33,12 @@ public class MonitoringService {
 	
 	@Autowired
 	private HeartbeatRestController heartbeatController;
+	
+	@Autowired
+	private QLearningControllerMonitor qLearningController;
+	
+	@Autowired
+	private StatusService status;
 	
 	private static final Logger log = LoggerFactory.getLogger(MonitoringService.class);
 	
@@ -66,20 +73,24 @@ public class MonitoringService {
 				
 				Location location = a.getLocation();
 				for (String filter: metricsFilterArray) {
-					try {
-						controller.monitor(a.getName(), location, metricsEndpoint + "/" + filter);
-					} catch (Exception e){
-						log.error("Error with monitoring " + a.getName() + " on port: "
-								+ a.getLocation().getPort() + " for endpoint " + metricsEndpoint + "/" + filter);
-						
-						errorCounts++;
-						
-						if (errorCounts >= errorThreshold) {
-							log.error("Stopping monitoring " + a.getName() + 
-									" as error count (" + errorCounts + ") exceeds threshold of " + errorThreshold);
-							stopMonitoring();
-						}
-					}
+					//TODO: All of monitoring and monitoring learning needs fixing
+//					try {
+////						String response = controller.monitor(a.getName(), location, metricsEndpoint + "/" + filter);
+////						status.update(response);
+////						qLearningController.process(agentName, loc, response);
+////					} catch (Exception e){
+////						log.error("Error with monitoring " + a.getName() + " on port: "
+////								+ a.getLocation().getPort() + " for endpoint " + metricsEndpoint + "/" + filter);
+////
+////						errorCounts++;
+////						status.lostContact();
+////
+////						if (errorCounts >= errorThreshold) {
+////							log.error("Stopping monitoring " + a.getName() +
+////									" as error count (" + errorCounts + ") exceeds threshold of " + errorThreshold);
+////							stopMonitoring();
+////						}
+////					}
 				}
 			}
 		}
@@ -100,9 +111,6 @@ public class MonitoringService {
 			Application a;
 			ApplicationPidTask(Application a) {this.a = a;}
 			public void run() {
-				
-				Location location = a.getLocation();
-				
 					try {
 						pidController.getAppPid(a);
 						log.info("Got the pid for the application: " + a.getName());

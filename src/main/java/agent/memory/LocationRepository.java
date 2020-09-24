@@ -21,6 +21,9 @@ public interface LocationRepository extends Neo4jRepository<Location, Long> {
 	@Query("MATCH (n:Location) RETURN n LIMIT {limit}")
     Collection<Location> graphLocation(@Param("limit") int limit);
 
-	@Query("MATCH (n:Location) WHERE NOT (n)<-[:HAS_LOCATION]-(:Entity) RETURN n LIMIT {limit}")
+	@Query("MATCH (n:Location {sublocation: false}) WHERE NOT (n)<-[:HAS_LOCATION]-(:Entity) RETURN n LIMIT {limit}")
 	Collection<Location> freeLocation(@Param("limit") int limit);
+
+	@Query("MATCH (n:Location {path: {pathStr}, port: {portInt}}) WHERE NOT (n)<-[:HAS_LOCATION]-(:Entity) RETURN n LIMIT 1")
+	Location locationForPathPort(@Param("pathStr") String pathStr, @Param("portInt") int portInt);
 }

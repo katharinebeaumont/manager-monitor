@@ -27,6 +27,7 @@ public class Monitor extends Entity implements Heartbeat {
 	   this.born = System.currentTimeMillis();
    }
    
+   //TODO: refactor: change monitor name to an agentID not connected to application name
    public String getName() {
 	   return name;
    }

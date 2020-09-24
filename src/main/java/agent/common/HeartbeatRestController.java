@@ -28,13 +28,13 @@ public class HeartbeatRestController {
         log.debug("Checking on " + name + " on port " + loc.getPort());
         log.debug("URL: " + url);
         try {
-        		String response = restTemplate.getForObject(url, String.class);
-        		log.info(name + " heartbeat response is :" + response);
-        		return response;
+    		String response = restTemplate.getForObject(url, String.class);
+    		log.info(name + " heartbeat response is :" + response);
+    		return response;
         } catch (RestClientException ex) {
-        		log.error("Error calling " + name);
-        		log.error(ex.getMessage());
-        		throw new HeartbeatException("Error with heartbeat for " +  name);
+    		log.error("Error calling " + name);
+    		log.error(ex.getMessage());
+    		throw new HeartbeatException("Error with heartbeat for " +  name);
         }
 	}
 	

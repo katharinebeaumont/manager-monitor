@@ -21,10 +21,7 @@ public class MonitoringRestController {
 	@Autowired
     private RestTemplate restTemplate;
 	
-	@Autowired
-	private StatusService status;
-	
-	public void monitor(String name, Location loc, String endpoint) throws Exception {
+	public String monitor(String name, Location loc, String endpoint) throws Exception {
 		
 		String url = loc.getPath() + ":" + loc.getPort() + "/" + endpoint;
         log.debug("Harvesting from " + name + " on port " + loc.getPort());
@@ -32,11 +29,10 @@ public class MonitoringRestController {
         try {
        		String response = restTemplate.getForObject(url, String.class);
        		log.debug("Monitoring response is :" + response);
-       		status.update(response);
+       		return response;
          } catch (RestClientException ex) {
        		log.error("Error calling " + name);
        		ex.printStackTrace();
-       		status.lostContact();
        		throw new Exception("Error with monitoring " +  name);
         }
 	}

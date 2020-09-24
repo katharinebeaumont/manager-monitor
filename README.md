@@ -57,3 +57,8 @@ To run in monitor mode:
 
 Starts the application locally on the instructed port.
 Monitors the application based on available metrics. These depend on the application.
+
+# Getting started
+
+Ensure Neo4J is running and database is started
+

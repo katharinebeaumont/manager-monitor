@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import agent.common.HeartbeatException;
 import agent.common.HeartbeatRestController;
 import agent.deployment.DeploymentService;
-import agent.manager.HeartbeatService;
 import agent.memory.ApplicationEntityService;
 import agent.memory.LocationEntityService;
 import agent.memory.domain.Application;
@@ -39,9 +38,6 @@ public class MonitoringAgent {
 	@Autowired
 	private MonitoringService monitoringService;
 	
-	@Autowired
-	private ApplicationPidController appPidService;
-	
 	@Value("${agent.name}")
 	private String name;
 	
@@ -59,7 +55,7 @@ public class MonitoringAgent {
 		
 		//Experiment
 		if (experiment > 0) {
-			if (experiment == 2 && port == 8010) {
+			if (experiment == 2 && port > 8000 && port < 9000) {
 				log.info("Starting monitoring agent in experiment mode 2: faulty port");
 				log.info("Not deploying application.");
 				return;
@@ -80,7 +76,7 @@ public class MonitoringAgent {
 
 	private Application loadApplication() {
 		Application application = appService.findByMonitor(name);
-		Location location = locationService.findForApplication(application.getName());
+		Location location = locationService.findForApplication(application);
 		application.setLocation(location);
 		return application;
 	}

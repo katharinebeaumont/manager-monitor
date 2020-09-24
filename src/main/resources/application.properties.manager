@@ -19,15 +19,15 @@ spring.boot.admin.password=admin
 
 monitoring.metrics.endpoint=actuator/metrics
 monitoring.metrics.filter=jvm.memory.used;jvm.memory.max;system.cpu.usage
-monitoring.interval = 3
+monitoring.interval = 1
 monitoring.errorThreshold = 3
-monitoring.initialDelay = 45
+monitoring.initialDelay = 60
 
-qlearning.lowerRewardThreshold = -50
+qlearning.lowerRewardThreshold = -10
 qlearning.gamma = 0.7
 qlearning.alpha = 0.8
-qlearning.epsilon = 0.1
-qlearning.preferNoAction = true
+qlearning.epsilon = 0.5
+qlearning.preferNoAction = false
 qlearning.disable = false
 
-experiment=2
+experiment=1

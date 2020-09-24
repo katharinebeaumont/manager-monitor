@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import agent.memory.domain.Application;
 import agent.memory.domain.Monitor;
 
 @Service
@@ -16,8 +15,8 @@ public class MonitoringEntityService {
 	private MonitorRepository monitorRepository;
 
     @Transactional(readOnly = true)
-    public Monitor findByName(String name) {
-        return monitorRepository.findByName(name);
+    public Monitor findByAgentId(String agentId) {
+        return monitorRepository.findByName(agentId);
     }
 	
     @Transactional(readOnly = true)
@@ -27,18 +26,18 @@ public class MonitoringEntityService {
     
     @Transactional
     public void save(Monitor entity) {
-    		monitorRepository.save(entity);
+		monitorRepository.save(entity);
     }
     
     @Transactional
     public void deleteAll() {
-    		monitorRepository.deleteAll();
+		monitorRepository.deleteAll();
     }
     
     @Transactional(readOnly = true)
     public Collection<Monitor> findAll(int limit) {
-    		Collection<Monitor> result = monitorRepository.getAll(limit);
-    		return result;
+		Collection<Monitor> result = monitorRepository.getAll(limit);
+		return result;
     }
     
 }

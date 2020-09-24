@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import agent.common.Heartbeat;
@@ -19,7 +20,8 @@ public class PidRequestService {
 
 	private static final Logger log = LoggerFactory.getLogger(PidRequestService.class);
 	
-	private int retryDelay = 45;
+	@Value("${agent.heartbeat.initialDelay}")
+	private int delay;
 	
 	@Autowired
 	private PidRestController pidController;
@@ -49,7 +51,8 @@ public class PidRequestService {
 		
 		final Runnable pidTask = new RequestPidTask(heartbeat);
 	    TimeUnit timeUnit = TimeUnit.SECONDS;
-	    scheduler.schedule(pidTask, retryDelay, timeUnit);
+	    scheduler.schedule(pidTask, delay-5, timeUnit);
 	}
+	
 
 }
