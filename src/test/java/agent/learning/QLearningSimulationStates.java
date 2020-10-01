@@ -1,5 +1,8 @@
 package agent.learning;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import agent.manager.learning.ActionEnum;
 import agent.manager.learning.MonitorStatus;
 
@@ -61,7 +64,7 @@ public class QLearningSimulationStates {
         }
         
         reward = calculateReward(reward);
-        return new MonitorStatus(monitorName, buildStatus(), reward);
+        return new MonitorStatus(monitorName, buildStatus(reward));
 
     }
 
@@ -77,8 +80,18 @@ public class QLearningSimulationStates {
         return reward;
     }
 
-    private String buildStatus() {
-        return location + ":" + jvmMemory + ":" + latency;
+    private String buildStatus(int reward) {
+    	JSONObject status = new JSONObject();
+    	try {
+			status.put("location", location);
+			status.put("jvmMemory", jvmMemory);
+	    	status.put("latency", latency);
+	    	status.put("reward", reward);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+    	
+    	return status.toString();
     }
 
 }

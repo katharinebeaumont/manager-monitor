@@ -7,14 +7,11 @@ import agent.manager.learning.MonitorStatus;
 import agent.manager.learning.QLearningManager;
 import agent.memory.domain.Location;
 
-import org.junit.After;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +20,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(MockitoJUnitRunner.class)
 public class QLearningSimulationManager {
 
     private static final Logger log = LoggerFactory.getLogger(QLearningSimulationManager.class);
@@ -208,9 +204,9 @@ public class QLearningSimulationManager {
             //   so we always expect it to have a higher reward
             //   for moving to location 1 (covered in assertions 
             //   by checking if latency is high).
-            String[] stateDesc = s.getStateDesc();
-            int jvmMemory = Integer.parseInt(stateDesc[1]);
-            int latency = Integer.parseInt(stateDesc[2]);
+            JSONObject stateDesc = s.getStateDesc();
+            int jvmMemory = stateDesc.getInt("jvmMemory");
+            int latency = stateDesc.getInt("latency");
 
         	if (jvmMemory == 0 || latency == 1) {
         		//Low memory or high latency, better to move

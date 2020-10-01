@@ -8,8 +8,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import agent.memory.domain.Location;
-import agent.memory.domain.Monitor;
-import agent.monitor.StatusService;
 
 /**
  * Rest Controller that sends a request to monitoring agents and collects feedback.

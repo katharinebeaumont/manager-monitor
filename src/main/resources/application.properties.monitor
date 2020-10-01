@@ -3,7 +3,7 @@ spring.data.neo4j.uri=bolt://localhost:7687
 spring.data.neo4j.username=neo4j
 spring.data.neo4j.password=thesis
 
-logging.file=twitterClient-monitoring_agent.txt
+logging.file=monitoring_agent_logs.txt
 
 agent.mode=monitor
 agent.name=mockService-monitoring_agent

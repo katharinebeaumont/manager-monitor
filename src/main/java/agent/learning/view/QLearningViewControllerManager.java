@@ -14,20 +14,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import agent.learning.QLearning;
-import agent.learning.QLearningController;
 import agent.learning.QTable;
 import agent.learning.State;
+import agent.manager.learning.QLearningControllerManager;
+import agent.manager.learning.QLearningManager;
 
 /*
  * Shows learnings of the manager per agent.
+ * TODO only works for managing agent. Need a separate system for monitoring agents
+ * due to being 2 QLearningController beans.
  */
 @Controller
-public class QLearningViewController {
+public class QLearningViewControllerManager {
 
-	private static final Logger log = LoggerFactory.getLogger(QLearningViewController.class);
+	private static final Logger log = LoggerFactory.getLogger(QLearningViewControllerManager.class);
 	
 	@Autowired
-	private QLearningController qLearningController;
+	private QLearningControllerManager qLearningController;
 	
 	@Autowired
 	private QLearningLogViewService logViewService;
@@ -36,7 +39,7 @@ public class QLearningViewController {
 	public String getAgentNames(Model model) {
 		log.debug("Creating agent names view");
 		//Drop down option to select agent by name
-		HashMap<String, QLearning> qTables = qLearningController.getQLearningProcesses();
+		HashMap<String, QLearningManager> qTables = qLearningController.getLearningProcesses();
 		List<QLearningAgentViewEntity> agentNames = new ArrayList(); 
 		
 		if (qTables != null && !qTables.isEmpty()) {
@@ -59,7 +62,7 @@ public class QLearningViewController {
 	public String showLearningsForAgent(@PathVariable("agentName") String agentName, Model model) {
 		log.debug("Creating view for " + agentName);
 		//Drop down option to select agent by name
-		HashMap<String, QLearning> qTables = qLearningController.getQLearningProcesses();
+		HashMap<String, QLearningManager> qTables = qLearningController.getLearningProcesses();
 		List<QLearningStateViewEntity> stateViews = new ArrayList<>();
 		int episodeCount = 0;
 		double current_value = 0;
@@ -105,7 +108,7 @@ public class QLearningViewController {
 		log.debug("Creating episode view for " + agentName + ", episode " + episode);
 		int stepCount = 0;
 		
-		HashMap<String, QLearning> qTables = qLearningController.getQLearningProcesses();
+		HashMap<String, QLearningManager> qTables = qLearningController.getLearningProcesses();
 		if (qTables != null && !qTables.isEmpty()) {
 			QLearning learning = qTables.get(agentName);
 			if (learning != null) {
@@ -143,7 +146,6 @@ public class QLearningViewController {
 		return "agentlogs";
 		
 	}
-	
 	
 	private int parseEpisode(String episodeStr) {
 		episodeStr = episodeStr.replace("Episode", "");

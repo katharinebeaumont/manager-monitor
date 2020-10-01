@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import agent.common.HeartbeatException;
 import agent.common.HeartbeatRestController;
-import agent.learning.QLearningController;
+import agent.learning.LearningController;
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 
@@ -35,10 +35,7 @@ public class MonitoringService {
 	private HeartbeatRestController heartbeatController;
 	
 	@Autowired
-	private QLearningControllerMonitor qLearningController;
-	
-	@Autowired
-	private StatusService status;
+	private LearningControllerMonitor learningController;
 	
 	private static final Logger log = LoggerFactory.getLogger(MonitoringService.class);
 	
@@ -73,24 +70,24 @@ public class MonitoringService {
 				
 				Location location = a.getLocation();
 				for (String filter: metricsFilterArray) {
-					//TODO: All of monitoring and monitoring learning needs fixing
-//					try {
-////						String response = controller.monitor(a.getName(), location, metricsEndpoint + "/" + filter);
-////						status.update(response);
-////						qLearningController.process(agentName, loc, response);
-////					} catch (Exception e){
-////						log.error("Error with monitoring " + a.getName() + " on port: "
-////								+ a.getLocation().getPort() + " for endpoint " + metricsEndpoint + "/" + filter);
-////
-////						errorCounts++;
-////						status.lostContact();
-////
-////						if (errorCounts >= errorThreshold) {
-////							log.error("Stopping monitoring " + a.getName() +
-////									" as error count (" + errorCounts + ") exceeds threshold of " + errorThreshold);
-////							stopMonitoring();
-////						}
-////					}
+					try {
+						String response = controller.monitor(a.getName(), location, metricsEndpoint + "/" + filter);
+						ApplicationStatus appStatus = new ApplicationStatus(a.getName(), response);
+						learningController.process(appStatus);
+						
+					} catch (Exception e){
+						log.error("Error with monitoring " + a.getName() + " on port: "
+								+ a.getLocation().getPort() + " for endpoint " + metricsEndpoint + "/" + filter);
+
+						errorCounts++;
+						learningController.processLostContact();
+
+						if (errorCounts >= errorThreshold) {
+							log.error("Stopping monitoring " + a.getName() +
+									" as error count (" + errorCounts + ") exceeds threshold of " + errorThreshold);
+							stopMonitoring();
+						}
+					}
 				}
 			}
 		}

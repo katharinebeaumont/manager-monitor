@@ -4,16 +4,18 @@ package agent.learning;
 import agent.manager.learning.ActionEnum;
 import agent.manager.learning.MonitorStatus;
 import agent.manager.learning.QLearningManager;
-import agent.memory.domain.Monitor;
+import agent.memory.domain.Location;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class QLearningTest {
 
-    QLearning qLearning;
+	QLearningManager qLearning;
     MonitorStatus monitorStatus1;
     MonitorStatus monitorStatus2;
     MonitorStatus monitorStatus3;
@@ -21,11 +23,20 @@ class QLearningTest {
 
     @BeforeEach
     void setUp() {
-        qLearning = new QLearningManager("agent123", -10, 0.4, 0.5, 0.1, false);
-        monitorStatus1 = new MonitorStatus("agent123", "first state", 2);
-        monitorStatus2 = new MonitorStatus("agent123", "second state", 4);
-        monitorStatus3 = new MonitorStatus("agent123", "third state", -10);
-        monitorStatus4 = new MonitorStatus("agent123", "forth state", -10);
+    	qLearning = Mockito.spy(new QLearningManager("agent123", -10, 0.4, 0.5, 0.1, false));
+        //Locations not important in these tests.
+    	Action moveTo2 = new Action(ActionEnum.MOVE, new Location("first location"));
+		List<Action> actionsForLocation1 = Arrays.asList(new Action(ActionEnum.DO_NOTHING), moveTo2);
+    	Mockito.doReturn(actionsForLocation1).when(qLearning).updateAvailableLocations("first state");
+    	List<Action> actionsForLocation2 = Arrays.asList(new Action(ActionEnum.DO_NOTHING), new Action(ActionEnum.MOVE, new Location("second location")));
+    	Mockito.doReturn(actionsForLocation2).when(qLearning).updateAvailableLocations("second state");
+    	Mockito.doReturn(actionsForLocation2).when(qLearning).updateAvailableLocations("third state");
+    	Mockito.doReturn(actionsForLocation2).when(qLearning).updateAvailableLocations("forth state");
+	
+        monitorStatus1 = new MonitorStatus("agent123", "{\"location\":\"first state\",\"reward\":2}");
+        monitorStatus2 = new MonitorStatus("agent123", "{\"location\":\"second state\",\"reward\":4}");
+        monitorStatus3 = new MonitorStatus("agent123", "{\"location\":\"third state\",\"reward\":-10}");
+        monitorStatus4 = new MonitorStatus("agent123", "{\"location\":\"forth state\",\"reward\":-10}");
     }
 
     @AfterEach
@@ -35,8 +46,8 @@ class QLearningTest {
     @Test
     void testStartNewEpisode() {
         //Arrange
-        Action firstReturnedAction = qLearning.episodeStep(monitorStatus1);
-        Action secondReturnedAction = qLearning.episodeStep(monitorStatus2);
+        qLearning.episodeStep(monitorStatus1);
+        qLearning.episodeStep(monitorStatus2);
         double totalValue = qLearning.getCurrentValue();
         Action a = qLearning.getPreviousAction();
         State s = qLearning.getPreviousState();
@@ -85,6 +96,7 @@ class QLearningTest {
 
     @Test
     void testAddToSteps() {
+    	
         //Arrange
         //First status is received from the environment, reward 2
         //And the action is decided based on that
@@ -114,8 +126,10 @@ class QLearningTest {
         //1. Monitor status 3 has a value of -10.
         // Alpha is 0.5 so this will be stored as -5
         // The episode lower threshold is -10
-        Action a1 = qLearning.episodeStep(monitorStatus3);
-        double currentValueA1 = qLearning.getCurrentValue();
+    	Action a1 = qLearning.episodeStep(monitorStatus3);
+    	a1 = qLearning.episodeStep(monitorStatus3);
+        
+    	double currentValueA1 = qLearning.getCurrentValue();
         List<List<String>> steps = qLearning.getEpisodeSteps();
         assertEquals(1, steps.size());
         assertEquals(-5, currentValueA1);

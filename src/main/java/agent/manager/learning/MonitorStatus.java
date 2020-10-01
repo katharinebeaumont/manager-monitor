@@ -1,30 +1,32 @@
 package agent.manager.learning;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import agent.learning.Action;
 import agent.learning.EntityStatus;
 import agent.learning.State;
-import agent.memory.domain.Location;
 
 /**
  * The feedback from the environment of the Monitor, sent to the Manager 
  */
 public class MonitorStatus extends EntityStatus {
 	
+	private static final Logger log = LoggerFactory.getLogger(MonitorStatus.class);
+	
 	private String agentName;
 	private State state;
-	private int reward;
+	private int reward = 0;
 	
-	public MonitorStatus(String agentName, String state, int reward) {
+	public MonitorStatus(String agentName, String stateInfo) {
 		this.agentName = agentName;
-		this.state = parseState(state);
-		this.reward = reward;
-	}
-	
-	private State parseState(String state) {
-		//TODO 26.1.20 parse State, splits on :
-		return new State(state.split(":"));
+		this.state = new State(stateInfo);
+		try {
+			this.reward = state.getStateDesc().getInt("reward");
+		} catch (JSONException e) {
+			log.error("Could not parse reward from " + state.toString());
+		}
 	}
 
 	public String agentName() {

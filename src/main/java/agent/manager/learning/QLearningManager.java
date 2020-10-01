@@ -2,6 +2,8 @@ package agent.manager.learning;
 
 import agent.memory.DBInterface;
 import agent.memory.domain.Location;
+
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,13 @@ public class QLearningManager extends QLearning<MonitorStatus> {
 	 */
 	public Action pickActionAtRandom(State S_next) {
 		//TODO this needs to be more robust
-		String currentLocation = S_next.getStateDesc()[0];
+		String currentLocation;
+		try {
+			currentLocation = S_next.getStateDesc().getString("location");
+		} catch (JSONException e) {
+			currentLocation = null;
+			log.error("Could not parse location");
+		}
 		//Returning the array despite class scope due to test
 		// where need to mock the call to DBInterface
 		actions = updateAvailableLocations(currentLocation);
@@ -68,7 +76,13 @@ public class QLearningManager extends QLearning<MonitorStatus> {
 
 	public Action pickBestAction(State S_next) {
 		//TODO this needs to be more robust
-		String currentLocation = S_next.getStateDesc()[0];
+		String currentLocation;
+		try {
+			currentLocation = S_next.getStateDesc().getString("location");
+		} catch (JSONException e) {
+			currentLocation = null;
+			log.error("Could not parse location");
+		}
 		//Returning the array despite class scope due to test
 		// where need to mock the call to DBInterface
 		actions = updateAvailableLocations(currentLocation);

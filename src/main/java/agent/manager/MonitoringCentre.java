@@ -1,25 +1,23 @@
 package agent.manager;
 
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import agent.common.Heartbeat;
 import agent.common.HeartbeatException;
 import agent.common.HeartbeatRestController;
-import agent.learning.FeedbackParser;
 import agent.manager.learning.MonitorStatus;
 import agent.manager.learning.QLearningControllerManager;
-import agent.memory.domain.Application;
 import agent.memory.domain.Location;
 import agent.memory.domain.Monitor;
 
+@Component
 public class MonitoringCentre {
 	
 	@Autowired
@@ -85,7 +83,7 @@ public class MonitoringCentre {
 			Location loc = s.getLocation();
 			try {
 				String response = controller.beat(s.getName(), loc);
-				MonitorStatus status = (MonitorStatus) FeedbackParser.parseResponse(response, s.getName());
+				MonitorStatus status = new MonitorStatus(s.getName(), response);
 				qLearningController.process(status);
 			} catch (HeartbeatException hbe){
 				errorCount++;
@@ -96,4 +94,5 @@ public class MonitoringCentre {
 			}
 		}
 	}
+	
 }

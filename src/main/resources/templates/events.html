@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Event Store: Events</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <h1>Event Store: Events</h1>
+
+    <table>
+    <tbody>
+     <tr th:if="${eventView.events.empty}">
+            <td colspan="2"> No logs to show yet </td>
+        </tr>
+        <tr th:each="event : ${eventView.events}">
+            <td><span th:text="${event}"> Event </span></td>
+        </tr>
+    </tbody>
+	</table>
+</body>
+</html>

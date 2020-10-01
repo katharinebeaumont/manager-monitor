@@ -96,7 +96,8 @@ public abstract class QLearning<T extends EntityStatus> {
 		log.info("State was " + S_previous + " but after Action: " + A_previous + ", is now " + S.toString() + ", and the reward is: " + R);
 
 		//Q(S_previous, A_previous)
-		//Don't store the reward for the initial state
+		
+		//Don't store the reward for moving from the initial state, as is a placeholder
 		if (!S_previous.equals(State.initialState())) {
 			currentTotalValue += storeReward(R, S); // This is where Q(S,A) <- Q(S,A) + alpha[R + (gamma * max Q(S',a) - Q(S,A)] happens
 		}

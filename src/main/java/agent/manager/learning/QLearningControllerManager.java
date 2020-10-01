@@ -5,13 +5,10 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import agent.learning.Action;
-import agent.learning.EntityStatus;
-import agent.learning.QLearning;
-import agent.learning.QLearningController;
-import agent.memory.domain.Location;
-import agent.monitor.StatusService;
+import agent.learning.LearningController;
 
 /**
  * Controls the Q Learning processes of the manager.
@@ -22,7 +19,8 @@ import agent.monitor.StatusService;
  * @author katharine
  *
  */
-public class QLearningControllerManager extends QLearningController<MonitorStatus, QLearningManager> {
+@Component
+public class QLearningControllerManager extends LearningController<MonitorStatus, QLearningManager> {
 	
 	private static final Logger log = LoggerFactory.getLogger(QLearningControllerManager.class);
 	
@@ -35,17 +33,17 @@ public class QLearningControllerManager extends QLearningController<MonitorStatu
 			return;
 		}
 		
-		if (qlearningProcesses == null) {
+		if (learningProcesses == null) {
 			log.info("Q learning process is null. Creating new hashmap.");
-			qlearningProcesses = new HashMap();
+			learningProcesses = new HashMap();
 		}
 		
 		QLearningManager qLearning;
 		
 		String agentName = status.agentName();
 			
-		if (qlearningProcesses.containsKey(agentName)) {
-			qLearning = qlearningProcesses.get(agentName);
+		if (learningProcesses.containsKey(agentName)) {
+			qLearning = learningProcesses.get(agentName);
 		} else {
 			log.info(agentName + " not registered for learning. Starting now with lower reward threshold " +
 					lowerRewardThreshold + ", gamma " + gamma + ", alpha " + alpha + " and epsilon " + epsilon);
@@ -54,7 +52,7 @@ public class QLearningControllerManager extends QLearningController<MonitorStatu
 		}
 		
 		Action actionToTake = qLearning.episodeStep(status);
-		qlearningProcesses.put(agentName, qLearning);
+		learningProcesses.put(agentName, qLearning);
 		if (actionToTake != null) {
 			actions.takeAction(actionToTake, agentName);
 		}
@@ -63,8 +61,8 @@ public class QLearningControllerManager extends QLearningController<MonitorStatu
 
 	//TODO QLearning score: check values
 	public void processMonitorDownEvent(String name) {
-		String response = "monitor down";
-		process(new MonitorStatus(name, response, -10));
+		String response = "{\"name\":\"monitor down\",\"reward\":-10}";
+		process(new MonitorStatus(name, response));
 	}
 
 }

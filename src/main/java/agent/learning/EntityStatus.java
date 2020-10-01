@@ -4,7 +4,6 @@ package agent.learning;
 public abstract class EntityStatus {
 
 	public abstract State getState();
-	
 	public abstract int getReward();
 	
 }

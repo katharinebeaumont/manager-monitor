@@ -23,9 +23,9 @@ import org.springframework.stereotype.Controller;
  *
  */
 @Controller
-public abstract class QLearningController<T extends EntityStatus, E extends QLearning> {
+public abstract class LearningController<T extends EntityStatus, E extends QLearning> {
 
-	protected HashMap<String, E> qlearningProcesses;
+	protected HashMap<String, E> learningProcesses;
 
 	@Value("${qlearning.lowerRewardThreshold}")
 	protected int lowerRewardThreshold;
@@ -50,7 +50,7 @@ public abstract class QLearningController<T extends EntityStatus, E extends QLea
 	
 	public abstract void process(T status);
 
-	public HashMap<String, E> getQLearningProcesses() {
-		return qlearningProcesses;
+	public HashMap<String, E> getLearningProcesses() {
+		return learningProcesses;
 	}
 }

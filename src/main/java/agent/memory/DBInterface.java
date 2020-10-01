@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
@@ -13,6 +14,7 @@ import agent.memory.domain.Monitor;
 /*
  * Interface for the Agents to retrieve information from the databases
  */
+@Service
 public class DBInterface {
 	
 	@Autowired

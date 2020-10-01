@@ -3,6 +3,7 @@ package agent.manager.learning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import agent.learning.Action;
 import agent.manager.CommandControllerManager;
@@ -10,6 +11,7 @@ import agent.manager.CommandControllerManager;
 /*
  * Translates the action selected in the learning process with the commands
  */
+@Component
 public class ManagerAgentActions {
 
 	private static final Logger log = LoggerFactory.getLogger(ManagerAgentActions.class);

@@ -1,6 +1,7 @@
 package agent.manager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import agent.common.HeartbeatException;
 import agent.common.HeartbeatRestController;
@@ -12,6 +13,7 @@ import agent.memory.domain.Monitor;
 /**
  * Calls to other agents and applications
  */
+@Service
 public class ExternalInterface {
 
 	@Autowired

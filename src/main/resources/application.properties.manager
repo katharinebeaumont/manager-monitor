@@ -3,7 +3,7 @@ spring.data.neo4j.uri=bolt://localhost:7687
 spring.data.neo4j.username=neo4j
 spring.data.neo4j.password=thesis
 
-logging.file=managerAgentLogs.txt
+logging.file=manager_agent_logs.txt
 logging.level.org.neo4j=ERROR
 
 agent.mode=manager

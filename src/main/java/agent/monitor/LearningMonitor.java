@@ -10,10 +10,10 @@ import agent.learning.State;
  * TODO: QLearningMonitor needs writing
  * 
  */
-public class QLearningMonitor extends QLearning<ApplicationStatus> {
+public class LearningMonitor extends QLearning<ApplicationStatus> {
 
 
-	public QLearningMonitor(String agentName, int lowerRewardThreshold, double gamma, double alpha, double epsilon) {
+	public LearningMonitor(String agentName, int lowerRewardThreshold, double gamma, double alpha, double epsilon) {
 		super(agentName, lowerRewardThreshold, gamma, alpha, epsilon);
 	}
 
