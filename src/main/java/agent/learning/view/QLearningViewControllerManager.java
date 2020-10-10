@@ -35,6 +35,11 @@ public class QLearningViewControllerManager {
 	@Autowired
 	private QLearningLogViewService logViewService;
 	
+	@GetMapping("/")
+	public String home(Model model) {
+		return "home";
+	}
+	
 	@GetMapping("/agents")
 	public String getAgentNames(Model model) {
 		log.debug("Creating agent names view");

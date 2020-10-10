@@ -82,10 +82,13 @@ public class MonitoringService {
 						errorCounts++;
 						learningController.processLostContact();
 
-						if (errorCounts >= errorThreshold) {
-							log.error("Stopping monitoring " + a.getName() +
+						if (errorCounts >= (errorThreshold)) {
+							log.error("Warning for " + a.getName() +
 									" as error count (" + errorCounts + ") exceeds threshold of " + errorThreshold);
+						}
+						if (errorCounts >= (10*errorThreshold)) {
 							stopMonitoring();
+							log.error("Terminating monitoring as reached 10x error threshold");
 						}
 					}
 				}

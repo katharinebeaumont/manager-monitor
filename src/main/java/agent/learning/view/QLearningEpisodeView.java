@@ -16,15 +16,18 @@ public class QLearningEpisodeView {
 	private double parseTotalValue() {
 		String lastEpisode = episodeSteps.get(episodeSteps.size() - 1);
 		int beginIndex = lastEpisode.indexOf("Q table value:");
-		String valueStr = lastEpisode.substring(beginIndex);
-		
-		valueStr = valueStr.replace("Q table value:", "");
-		valueStr = valueStr.trim();
 		double value = 0;
-		try {
-			value = Double.parseDouble(valueStr);
-		} catch (NumberFormatException ex) {
-			//Do nothing - not essential if doesn't work.
+		if (beginIndex >= 0) {
+			String valueStr = lastEpisode.substring(beginIndex);
+			
+			valueStr = valueStr.replace("Q table value:", "");
+			valueStr = valueStr.trim();
+			
+			try {
+				value = Double.parseDouble(valueStr);
+			} catch (NumberFormatException ex) {
+				//Do nothing - not essential if doesn't work.
+			}
 		}
 		return value;
 	}

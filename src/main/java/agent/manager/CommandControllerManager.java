@@ -81,6 +81,9 @@ public class CommandControllerManager {
 		shutdown(agentID);
 		Application app = dbInterface.getApplicationForMonitor(agentID);
 		dbInterface.updateLocationForApplication(app, location);
+		//TODO: need to delete existing monitor and it's location and has location 
+		// relationship
+		dbInterface.removeMonitor(agentID);
 		deploy(app);
 	}
 

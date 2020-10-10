@@ -34,8 +34,6 @@ public class MonitorEventStore {
 	//Needs to be synchronised as multiple threads accessing
 	List<JSONObject> eventsForMetric = Collections.synchronizedList(new ArrayList<JSONObject>());
 	
-	JSONObject emptyEvent = new JSONObject();
-	
 	public void add(JSONObject event) {
 		log.info("Adding " + event + " to Event Store");
 		synchronized (eventsForMetric) {
@@ -46,13 +44,22 @@ public class MonitorEventStore {
 	
 	public JSONObject removeFirst() {
 		if (eventsForMetric.size() == 0) {
+			JSONObject emptyEvent = new JSONObject();
+			try {
+				emptyEvent.put("eventStoreEmpty", "null");
+				emptyEvent.put("reward", 0);
+			} catch (JSONException ex) {
+				log.error("Could not create empty event");
+			}
 			return emptyEvent;
 		}
 		
 		flushOldEvents();
 		
 		synchronized (eventsForMetric) {
-			return eventsForMetric.remove(0);
+			JSONObject retval = eventsForMetric.remove(0);
+			retval.remove("timestamp");
+			return retval;
 		}
 	}
 

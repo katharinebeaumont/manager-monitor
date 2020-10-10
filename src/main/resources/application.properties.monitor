@@ -1,9 +1,10 @@
-server.port=${port:9010}
+server.port=${port:3010}
 spring.data.neo4j.uri=bolt://localhost:7687
 spring.data.neo4j.username=neo4j
 spring.data.neo4j.password=thesis
 
-logging.file=monitoring_agent_logs.txt
+logging.file=mockService-monitoring_agent-logs.txt
+logging.level.org.neo4j=ERROR
 
 agent.mode=monitor
 agent.name=mockService-monitoring_agent
@@ -11,7 +12,7 @@ agent.monitor.jar=monitor.jar
 agent.directory=/Users/katharine/Documents/UCD/Semester \3/ms-with-agents/
 agent.heartbeat.interval = 3
 agent.heartbeat.errorThreshold = 3
-agent.heartbeat.initialDelay = 45
+agent.heartbeat.initialDelay = 30
 
 spring.boot.admin.username=admin
 spring.boot.admin.password=admin
@@ -19,7 +20,7 @@ spring.boot.admin.password=admin
 monitoring.metrics.endpoint=actuator/metrics
 monitoring.metrics.filter=jvm.memory.used;jvm.memory.max;system.cpu.usage
 monitoring.interval = 1
-monitoring.errorThreshold = 3
+monitoring.errorThreshold = 30
 monitoring.initialDelay = 45
 
 qlearning.lowerRewardThreshold = -10

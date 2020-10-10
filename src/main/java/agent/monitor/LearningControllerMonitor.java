@@ -27,7 +27,7 @@ public class LearningControllerMonitor  extends LearningController<ApplicationSt
 	double jvmMax = 1;
 	
     @Override
-    public void process(ApplicationStatus appStatus) {
+    public boolean process(ApplicationStatus appStatus) {
     	JSONObject event = new JSONObject();
     	
     	State s = appStatus.getState();
@@ -38,7 +38,7 @@ public class LearningControllerMonitor  extends LearningController<ApplicationSt
 			//Don't store this, just use it to judge how good jvm memory is
 			if (name.equals("jvm.memory.max")) {
 				jvmMax = value;
-				return;
+				return true;
 			}
 			event = convert(name, value, event);
 		} catch (JSONException e) {
@@ -46,6 +46,7 @@ public class LearningControllerMonitor  extends LearningController<ApplicationSt
 		}
     	
     	eventStore.add(event);   
+    	return true;
     }
 
 	public void processLostContact() {

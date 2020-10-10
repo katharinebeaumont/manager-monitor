@@ -27,7 +27,7 @@ public class ManagerAgentActions {
 		//if (actionToTake.equals(ActionEnum.RETIRE)) {
 	//		commandCentre.shutdown(agentID);
 	//	}
-		if (actionToTake.equals(ActionEnum.MOVE)) {
+		if (actionToTake.getActionEnum().equals(ActionEnum.MOVE)) {
 			//TODO: need to have location to move to here.
 			commandCentre.relocate(agentID, actionToTake.getLocation());
 		}

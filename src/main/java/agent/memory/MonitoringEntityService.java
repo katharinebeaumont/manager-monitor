@@ -39,5 +39,11 @@ public class MonitoringEntityService {
 		Collection<Monitor> result = monitorRepository.getAll(limit);
 		return result;
     }
+
+    @Transactional
+	public void delete(String agentID) {
+		Monitor m = monitorRepository.findByName(agentID);
+		monitorRepository.delete(m);
+	}
     
 }

@@ -45,7 +45,7 @@ public class DeploymentService {
 		Location location = monitor.getLocation();
 		String agentLoggingFile = monitor.getName() + monitor.getBorn() + "-log.txt";
 		String command = "java -jar -Dserver.port=" + location.getPort() 
-		        + " -Dagent.mode=monitoring -Dlogging.file=" 
+		        + " -Dagent.mode=monitor -Dlogging.file=" 
 				+ agentLoggingFile + " -Dagent.name=" + monitor.getName() + " "
 		        + agentJar;
 		
@@ -121,7 +121,7 @@ public class DeploymentService {
 		if (monitorIdentifier.isEmpty()) {
 			log.error("Error! Could not kill " + monitor.getName() + " with PID as I don't have it.");
 			log.error("Trying to kill it by port instead but this is dangerous and doesn't always work!");
-			monitorIdentifier = "$(ps -e | grep Dserver.port=" + monitorPort + ")";
+			monitorIdentifier = "$(ps -e | grep Dserver.port=" + monitorPort + "| awk '{print $1}')";
 		}
 		
 		String killMonitorCommand = "kill " + monitorIdentifier;
@@ -135,7 +135,7 @@ public class DeploymentService {
 		Location appLoc = app.getLocation();
 		int appPort = appLoc.getPort();
 		
-		String killApplicationCommand = "kill $(ps -e | grep Dserver.port=" + appPort + ")";
+		String killApplicationCommand = "kill $(ps -e | grep Dserver.port=" + appPort + "| awk '{print $1}')";
 		if (pid != null && !pid.isEmpty()) {
 			killApplicationCommand = "kill " + pid;
 		} else {

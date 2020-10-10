@@ -27,7 +27,7 @@ public class HeartbeatRestController {
         log.debug("URL: " + url);
         try {
     		String response = restTemplate.getForObject(url, String.class);
-    		log.info(name + " heartbeat response is :" + response);
+    		log.debug(name + " heartbeat response is :" + response);
     		return response;
         } catch (RestClientException ex) {
     		log.error("Error calling " + name);

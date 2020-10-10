@@ -17,16 +17,15 @@ import java.util.List;
 
 public class QLearningManager extends QLearning<MonitorStatus> {
 
-	@Autowired
-	DBInterface dbInterface;
-
 	private static final Logger log = LoggerFactory.getLogger(QLearningManager.class);
 	List<Action> actions = new ArrayList<Action>();
 
 	private boolean preferNoAction;
+	private DBInterface dbInterface;
 	
-	public QLearningManager(String agentName, int lowerRewardThreshold, double gamma, double alpha, double epsilon, boolean preferNoAction) {
+	public QLearningManager(DBInterface dbInterface, String agentName, int lowerRewardThreshold, double gamma, double alpha, double epsilon, boolean preferNoAction) {
 		super(agentName, lowerRewardThreshold, gamma, alpha, epsilon);
+		this.dbInterface = dbInterface;
 		this.preferNoAction = preferNoAction;
 		actions.add(new Action(ActionEnum.DO_NOTHING));
 	}

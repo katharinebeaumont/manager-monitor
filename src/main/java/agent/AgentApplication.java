@@ -23,11 +23,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.web.client.RestTemplate;
-import de.codecentric.boot.admin.server.config.EnableAdminServer;
 
 @Configuration
 @EnableAutoConfiguration
-@EnableAdminServer
 @SpringBootApplication
 @EnableNeo4jRepositories("agent.memory")
 @ComponentScan(basePackages = { "agent.*" } )
@@ -55,7 +53,7 @@ public class AgentApplication {
 	ApplicationEntityService appService;
 	
 	@Autowired
-	MonitoringEntityService slaveService;
+	MonitoringEntityService monitorService;
 	
 	@Autowired
 	LocationEntityService locService;
@@ -73,8 +71,8 @@ public class AgentApplication {
 		if (agentMode.equals("manager")) {
 			if (experiment == 1) {
 				log.info("Starting experiment 1: automatically deploy agent and mock service locally.");
-				log.info("Deleting all slaves");
-				slaveService.deleteAll();
+				log.info("Deleting all monitors");
+				monitorService.deleteAll();
 				
 				log.info("Deleting all locations");
 				locService.deleteAll();
@@ -95,7 +93,7 @@ public class AgentApplication {
 			if (experiment == 2) {
 				log.info("Starting experiment 2: deploy agent to a choice of faulty and non-faulty host.");
 				log.info("Deleting all slaves");
-				slaveService.deleteAll();
+				monitorService.deleteAll();
 				
 				log.info("Deleting all locations");
 				locService.deleteAll();

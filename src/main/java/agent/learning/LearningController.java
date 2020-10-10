@@ -48,7 +48,7 @@ public abstract class LearningController<T extends EntityStatus, E extends QLear
 	@Value("${experiment}")
 	private int experiment;
 	
-	public abstract void process(T status);
+	public abstract boolean process(T status);
 
 	public HashMap<String, E> getLearningProcesses() {
 		return learningProcesses;

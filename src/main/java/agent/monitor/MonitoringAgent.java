@@ -1,5 +1,7 @@
 package agent.monitor;
 
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +13,10 @@ import agent.common.HeartbeatRestController;
 import agent.deployment.DeploymentService;
 import agent.memory.ApplicationEntityService;
 import agent.memory.LocationEntityService;
+import agent.memory.MonitoringEntityService;
 import agent.memory.domain.Application;
 import agent.memory.domain.Location;
+import agent.memory.domain.Monitor;
 
 /**
  * If started in monitoring mode, the agent is a monitor that starts up the application
@@ -37,6 +41,9 @@ public class MonitoringAgent {
 	
 	@Autowired
 	private MonitoringService monitoringService;
+	
+	@Autowired
+	private MonitoringEntityService monitoringEService;
 	
 	@Value("${agent.name}")
 	private String name;
@@ -75,9 +82,23 @@ public class MonitoringAgent {
 	}
 
 	private Application loadApplication() {
-		Application application = appService.findByMonitor(name);
-		Location location = locationService.findForApplication(application);
-		application.setLocation(location);
-		return application;
+		try {
+			Application application = appService.findByMonitor(name);
+			log.error("Found application: " + application.toString());
+			Location location = locationService.findForApplication(application);
+			log.error("Found location: " + location.toString());
+			application.setLocation(location);
+			return application;
+		} catch (Exception ex) {
+			log.error("Error finding application, can't call DB");
+			log.error(ex.getMessage());
+			//ex.printStackTrace();
+		}
+		int portForApp = port-10;
+		log.error("Couldn't call DB, assuming mock service is on port" + portForApp);
+		Application entity1 = new Application("mockService", "mockService.jar");
+		Location loc1 = new Location("http://localhost", "local", portForApp, false);
+		entity1.setLocation(loc1);
+		return entity1;
 	}
 }

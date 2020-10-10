@@ -1,6 +1,10 @@
 package agent.learning;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,44 +56,50 @@ public class QTable {
 		double existingValue = 0; //Q(S,A)
 		HashMap<Action, Double> currentStateActionMapping = qTable.get(S);
 		if (currentStateActionMapping == null) {
+			log.info("No existing state action mapping for state " + S);
 			currentStateActionMapping = new HashMap<>();
 		} else {
 			Double value = currentStateActionMapping.get(A);
 			if (value != null) {
 				existingValue = value.doubleValue();
+				log.info("Existing value for taking action " + A.getActionEnum().name() + " from state " + S.toString() + " is " + existingValue);
+			} else {
+				log.info("No value for currentStateActionMapping A" + A.toString());
 			}
 		}
-		
-		log.info("Existing value for taking action " + A.getActionEnum().name() + " from state " + S.toString() + " is " + existingValue);
 		
 		//Get value for the next best possible action
+		double highestValue = 0;
 		HashMap<Action, Double> nextStateActionMapping = qTable.get(S_next);
-		double highestValue = 0; //max Q'(S,A)
-		Action bestAction = null;
 		if (nextStateActionMapping != null) {
-			for (Action a: nextStateActionMapping.keySet()) {
-				Double checkValue = nextStateActionMapping.get(a);
-				if (checkValue > highestValue) {
-					highestValue = checkValue;
-					bestAction = a;
+			log.info("Contents of nextStateActionMapping for " + S_next);
+			for (Action a: nextStateActionMapping.keySet()){
+				log.info("Action:" + a.toString() + "; value:" + nextStateActionMapping.get(a));
+				if (nextStateActionMapping.size() == 1) {
+					highestValue = nextStateActionMapping.get(a);
 				}
 			}
-		}
-
-		if (bestAction != null) {
-			log.info("Best possible value for an action taken after the next state is " + highestValue + ", for action " + bestAction.toString());
+			
+			Collection<Double> values = nextStateActionMapping.values();
+			List<Double> valuesList = new ArrayList<Double>(values);
+			if (valuesList.size() > 1) {
+				Collections.sort(valuesList);
+				int highestValueIndex = values.size() - 1;
+				highestValue = valuesList.get(highestValueIndex);
+			} else {
+				//Nothing, highest value is 0
+				log.info("No data yet on best possible value for action taken after next state");
+			}
 		} else {
-			log.info("No data yet on best possible value for action taken after next state");
+			log.info("NO StateActionMapping for S_next " + S_next.toString());
 		}
 		
 		//[R + (gamma * max Q(S',a)) - Q(S,A)]
-		// if the existing value is negative, we don't want to accidentally
-		// boost the value of the product with 2 negatives.
-		double product = R_next + (gamma * highestValue) - Math.abs(existingValue);
+		double product = R_next + (gamma * highestValue) - existingValue;
 		
+		log.info("R=" + R_next + ", gamma=" + gamma + ", max Q(S',a)=" + highestValue + ", Q(S,A)=" + existingValue);
 		log.info("[R + (gamma * max Q(S',a)) - Q(S,A)] = " + product);
-		
-		
+
 		//Q(S,A) + alpha[product]
 		double finalValue = existingValue + (alpha * product);
 		

@@ -2,14 +2,19 @@ package agent.memory;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import agent.memory.domain.Application;
+import agent.monitor.MonitoringAgent;
 
 @Service
 public class ApplicationEntityService {
+	
+	private static final Logger log = LoggerFactory.getLogger(ApplicationEntityService.class);
 	
 	@Autowired
 	private ApplicationRepository applicationRepository;
@@ -21,6 +26,7 @@ public class ApplicationEntityService {
     
     @Transactional(readOnly = true)
     public Application findByMonitor(String monitorName) {
+    	log.info("Searching db for application for " + monitorName);
         return applicationRepository.findByMonitor(monitorName, 1);
     }
 

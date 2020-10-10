@@ -42,6 +42,7 @@ public abstract class QLearning<T extends EntityStatus> {
 	 * Starts next episode.
 	 */
 	public void startNewEpisode() {
+		addQTableValueToSteps();
 		A_previous = new Action(ActionEnum.DO_NOTHING);
 		S_previous = State.initialState();
 		currentTotalValue = 0;
@@ -52,8 +53,12 @@ public abstract class QLearning<T extends EntityStatus> {
 	 * This is always looking behind: the State, the Action chosen from that
 	 * state, and the reward that was given.
 	 */
-	private void addToSteps(State S, Action A, int R) {
+	private void addSARToSteps(State S, Action A, int R) {
 		String step = "State: " + S + ";Action: " + A + ";Reward: " + R;
+		addToSteps(step);
+	}
+
+	private void addToSteps(String step) {
 		List<String> steps = new ArrayList<String>();
 		//Get the latest episode
 		if (episodeSteps.size() > 0) {
@@ -62,6 +67,11 @@ public abstract class QLearning<T extends EntityStatus> {
 			episodeSteps.add(steps);
 		}
 		steps.add(step);
+	}
+	
+	private void addQTableValueToSteps() {
+		String step = "Q table value: " + currentTotalValue;
+		addToSteps(step);
 	}
 	
 	/*
@@ -93,7 +103,7 @@ public abstract class QLearning<T extends EntityStatus> {
 		//Record reward from last state
 		// Retrieve R from S' and update the Q table
 		int R = status.getReward();
-		log.info("State was " + S_previous + " but after Action: " + A_previous + ", is now " + S.toString() + ", and the reward is: " + R);
+		log.debug("State was " + S_previous + " but after Action: " + A_previous + ", is now " + S.toString() + ", and the reward is: " + R);
 
 		//Q(S_previous, A_previous)
 		
@@ -112,7 +122,7 @@ public abstract class QLearning<T extends EntityStatus> {
 			return null;
 		}
 		//Store the State: Action pair, plus the total value
-		addToSteps(S_previous, A_previous, R); //This is always looking at the previous state and action.
+		addSARToSteps(S_previous, A_previous, R); //This is always looking at the previous state and action.
 		// The current one (new A and S) are not added yet, because we don't know the environmental feedback from the action
 		// until it is taken.
 

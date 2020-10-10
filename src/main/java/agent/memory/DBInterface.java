@@ -89,11 +89,29 @@ public class DBInterface {
 
 	public Monitor getMonitor(String agentID) {
 		Monitor m = monitoringAgentService.findByAgentId(agentID);
+		updateLocationForMonitor(m);
+		return m;
+	}
+	
+	public Monitor updateLocationForMonitor(Monitor m) {
+		Location loc = locationService.findForMonitor(m);
+		if (loc != null) {
+			m.setLocation(loc);
+		}
 		return m;
 	}
 	
 	public Application getApplicationForMonitor(String agentID) {
 		Application a = appService.findByMonitor(agentID);
+		Location loc = locationService.findForApplication(a);
+		if (loc != null) {
+			a.setLocation(loc);
+		}
 		return a;
+	}
+
+	public void removeMonitor(String agentID) {
+		locationService.deleteRelationship(agentID);
+		monitoringAgentService.delete(agentID);
 	}
 }

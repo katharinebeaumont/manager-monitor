@@ -53,7 +53,7 @@ To run in monitor mode:
   
 - Alternatively run this command, substituting in the agent name for one that matches a Monitor in the database as for above, and ensuring the agent service jar matches an existing jar for the mock service.
 
-`java -jar -Dlogging.file=twitterClient-monitoring_agent.txt -Dagent.mode=monitor -Dagent.name=twitterClient-monitoring_agent -Dagent.service.jar=twitterService.jar monitor.jar`
+`java -jar -Dlogging.file=monitoring_agent.txt -Dagent.mode=monitor -Dagent.name=test-monitoring_agent -Dagent.service.jar=monitor.jar monitor.jar`
 
 Starts the application locally on the instructed port.
 Monitors the application based on available metrics. These depend on the application.

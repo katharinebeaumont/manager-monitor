@@ -10,9 +10,9 @@ agent.mode=manager
 agent.name=manager
 agent.monitor.jar=monitor.jar
 agent.directory=/Users/katharine/Documents/UCD/Semester \3/ms-with-agents/
-agent.heartbeat.interval = 10
+agent.heartbeat.interval = 2
 agent.heartbeat.errorThreshold = 3
-agent.heartbeat.initialDelay = 45
+agent.heartbeat.initialDelay = 60
 
 spring.boot.admin.username=admin
 spring.boot.admin.password=admin
@@ -23,7 +23,7 @@ monitoring.interval = 1
 monitoring.errorThreshold = 3
 monitoring.initialDelay = 60
 
-qlearning.lowerRewardThreshold = -10
+qlearning.lowerRewardThreshold = -3
 qlearning.gamma = 0.7
 qlearning.alpha = 0.8
 qlearning.epsilon = 0.5

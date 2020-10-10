@@ -1,5 +1,7 @@
 package agent.learning;
 
+import java.util.Iterator;
+
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.tomcat.util.json.JSONParser;
 import org.json.JSONException;
@@ -26,7 +28,14 @@ public class State {
 	
 	public State(String state) {
 		try {
-			this.stateDesc = new JSONObject(state);
+			if (state.contains("response")) {
+				JSONObject response = new JSONObject(state);
+				this.stateDesc = new JSONObject(response.getString("response"));
+			}
+			else {
+				this.stateDesc = new JSONObject(state);
+			}
+					
 		} catch (JSONException e) {
 			log.error("Failed to create state with " + state);
 		}
@@ -54,9 +63,31 @@ public class State {
 		if (lengthOther != lengthThis) {
 			return false;
 		}
+		
 		if (otherStateDesc.toString().equals(stateDesc.toString())) {
 			return true;
 		}
+		
+		Iterator itr = stateDesc.keys();
+		while (itr.hasNext()) {
+			String key = (String)itr.next();
+			try {
+				if (otherStateDesc.has(key)) {
+					Object value = stateDesc.get(key);
+					if (!value.equals(otherStateDesc.get(key))) {
+						return false;
+					}
+				} else {
+					return false;
+				}
+				
+			} catch (JSONException e) {
+				log.error("could not parse state descriptions");
+				e.printStackTrace();
+			}
+		}
+		
+		
 		return false;
 	}
 	

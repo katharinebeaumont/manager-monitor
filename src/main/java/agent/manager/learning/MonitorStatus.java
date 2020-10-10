@@ -2,11 +2,13 @@ package agent.manager.learning;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import agent.learning.EntityStatus;
 import agent.learning.State;
+import agent.memory.domain.Location;
 
 /**
  * The feedback from the environment of the Monitor, sent to the Manager 
@@ -21,20 +23,49 @@ public class MonitorStatus extends EntityStatus {
 	
 	public MonitorStatus(String agentName, String stateInfo) {
 		this.agentName = agentName;
+		setState(stateInfo);
+		setReward();
+	}
+	
+	public void setState(String stateInfo) {
 		this.state = new State(stateInfo);
-		try {
-			this.reward = state.getStateDesc().getInt("reward");
-		} catch (JSONException e) {
-			log.error("Could not parse reward from " + state.toString());
+	}
+	
+	/*
+	 * WARNING: must be called after set state
+	 */
+	public void setReward() {
+		JSONObject stateDesc = state.getStateDesc();
+		if (stateDesc.has("reward")) {
+			try {
+				this.reward = stateDesc.getInt("reward");
+				state.getStateDesc().remove("reward"); //Don't need to store this twice (is stored in Status object)
+			} catch (JSONException e) {
+				log.error("Could not parse reward from " + state.toString());
+			}
+		} else {
+			log.error("No reward in state " + state.toString() + ", FIXME");
 		}
+	}
+	
+	public void setLocation(Location loc) {
+		JSONObject stateDesc = state.getStateDesc();
+		try {
+			stateDesc.put("location", loc.toString());
+		} catch (JSONException e) {
+			log.error("Failed to add location to State");
+		} 
+	}
+
+	public MonitorStatus(String name, String response, Location loc) {
+		this.agentName = name;
+		setState(response);
+		setReward();
+		setLocation(loc);
 	}
 
 	public String agentName() {
 		return agentName;
-	}
-	
-	public int reward() {
-		return reward;
 	}
 
 	@Override

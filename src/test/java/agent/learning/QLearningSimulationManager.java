@@ -5,6 +5,7 @@ import agent.learning.view.QLearningStateViewEntityBuilder;
 import agent.manager.learning.ActionEnum;
 import agent.manager.learning.MonitorStatus;
 import agent.manager.learning.QLearningManager;
+import agent.memory.DBInterface;
 import agent.memory.domain.Location;
 
 import org.json.JSONObject;
@@ -13,9 +14,13 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -49,7 +54,7 @@ public class QLearningSimulationManager {
      * Learning parameters
      */
     String agentName = "Agent0";
-    int lowerThreshold = -10;
+    int lowerThreshold = -2;
     double gamma = 0.9;
     double alpha = 0.01;
     double epsilon = 0.20;
@@ -91,7 +96,9 @@ public class QLearningSimulationManager {
     	// available locations there are, and creates the possible actions 
     	// an agent can take based on these. It (database call) needs mocking
     	// in this test
-    	QLearningManager qLearning = Mockito.spy(new QLearningManager(agentName, lowerThreshold, gamma, alpha, epsilon, true));
+    	DBInterface dbInterface = Mockito.spy(new DBInterface());
+        
+    	QLearningManager qLearning = Mockito.spy(new QLearningManager(dbInterface, agentName, lowerThreshold, gamma, alpha, epsilon, true));
         mockPotentialActions(qLearning);
     	
     	//Keep track of the number of times an action was taken
@@ -173,27 +180,47 @@ public class QLearningSimulationManager {
         HashMap<State, HashMap> map = table.getQTable();
         log.info("******************************");
         log.info("Q table for " + agentName + " is size " + map.size());
+        log.info("Reminder: JVM Memory 0 = bad, Latency 1 = bad");
+        for (State s: map.keySet()) {
+        	JSONObject stateDesc = s.getStateDesc();
+            int location = (Integer) stateDesc.get("location");
+            log.info("---------- State ----------");
+            
+            if (stateDesc.has("jvmMemory")) {
+            	log.info("Location: " + location + ", JVM Memory: " + stateDesc.getDouble("jvmMemory"));
+            } else {
+            	log.info("Location: " + location + ", Latency: " + stateDesc.getDouble("latency"));
+            }
+            List<QLearningStateViewEntity> views = QLearningStateViewEntityBuilder.build(s, map.get(s));
+            for (QLearningStateViewEntity view: views) {
+                String a = view.getAction();
+                double v = view.getValue();
+                if (a.equals(ActionEnum.DO_NOTHING.toString())) {
+                    log.info("Do nothing:" + v);
+                } else if (a.contains(ActionEnum.MOVE.toString())) {
+                    log.info(a + ":" + v);
+                } else {
+                    throw new Exception("Unaccounted for action: " + a);
+                }
+            }
+        }
 
         for (State s: map.keySet()) {
             double valueDoNothing = 0;
             double valueMove = 0;
             //State: location + ":" + jvmMemory + ":" + latency;
-            log.info("---------- state (location, jvmMemory, latency): " + s.toString() + "----------");
             List<QLearningStateViewEntity> views = QLearningStateViewEntityBuilder.build(s, map.get(s));
             for (QLearningStateViewEntity view: views) {
                 String a = view.getAction();
                 double v = view.getValue();
                 if (a.equals(ActionEnum.DO_NOTHING.toString())) {
                     valueDoNothing = v;
-                    log.info("Do nothing:" + valueDoNothing);
                 } else if (a.contains(ActionEnum.MOVE.toString())) {
                     valueMove = v;
-                    log.info(a + ":" + valueMove);
                 } else {
                     throw new Exception("Unaccounted for action: " + a);
                 }
             }
-
 
             //We are expecting: 
             // - low reward when JVM memory is 0, and the agent
@@ -205,19 +232,16 @@ public class QLearningSimulationManager {
             //   for moving to location 1 (covered in assertions 
             //   by checking if latency is high).
             JSONObject stateDesc = s.getStateDesc();
-            int jvmMemory = stateDesc.getInt("jvmMemory");
-            int latency = stateDesc.getInt("latency");
-
-        	if (jvmMemory == 0 || latency == 1) {
-        		//Low memory or high latency, better to move
-        		assertTrue(valueDoNothing < valueMove);
-        	} else {
-        		//When memory is high and latency is low,
-        		// better to do nothing
-        		assertTrue(valueMove < valueDoNothing);
-        	}
+            int location = (Integer) stateDesc.get("location");
+            if (location == 2) {
+            	assertTrue(valueDoNothing < valueMove);
+            } else if (location == 1) {
+            	assertTrue(valueDoNothing > valueMove);
+            } else {
+            	fail(); //Shouldn't be here
+            }
         }
-
+        
         log.info("******************************");
     }
 }

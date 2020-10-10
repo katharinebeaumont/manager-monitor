@@ -4,6 +4,7 @@ package agent.learning;
 import agent.manager.learning.ActionEnum;
 import agent.manager.learning.MonitorStatus;
 import agent.manager.learning.QLearningManager;
+import agent.memory.DBInterface;
 import agent.memory.domain.Location;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -23,7 +24,7 @@ class QLearningTest {
 
     @BeforeEach
     void setUp() {
-    	qLearning = Mockito.spy(new QLearningManager("agent123", -10, 0.4, 0.5, 0.1, false));
+    	 qLearning = Mockito.spy(new QLearningManager(new DBInterface(), "agent123", -10, 0.4, 0.5, 0.1, false));
         //Locations not important in these tests.
     	Action moveTo2 = new Action(ActionEnum.MOVE, new Location("first location"));
 		List<Action> actionsForLocation1 = Arrays.asList(new Action(ActionEnum.DO_NOTHING), moveTo2);
@@ -127,7 +128,7 @@ class QLearningTest {
         // Alpha is 0.5 so this will be stored as -5
         // The episode lower threshold is -10
     	Action a1 = qLearning.episodeStep(monitorStatus3);
-    	a1 = qLearning.episodeStep(monitorStatus3);
+    	Action a2 = qLearning.episodeStep(monitorStatus3);
         
     	double currentValueA1 = qLearning.getCurrentValue();
         List<List<String>> steps = qLearning.getEpisodeSteps();
@@ -137,33 +138,18 @@ class QLearningTest {
         //A2 should be null as a new episode is started.
         // This is as, again we get a value of -10, x 0.5 = -5
         // The lower thresholid is met, and a new episode is triggered
-        Action a2 = qLearning.episodeStep(monitorStatus4);
+        Action a3 = qLearning.episodeStep(monitorStatus4);
         double currentValueA2 = qLearning.getCurrentValue();
-        assertTrue(a2 == null);
+        assertTrue(a3 == null);
         assertEquals(0, currentValueA2);
         assertEquals(2, steps.size());
 
         //Now we should still be in the second episode, and monitor status 1
         // has a positive value so we expect to stay here.
-        Action a3 = qLearning.episodeStep(monitorStatus1);
+        Action a4 = qLearning.episodeStep(monitorStatus1);
         double currentValueA3 = qLearning.getCurrentValue();
         //Assert
-        assertTrue(a3 != null);
+        assertTrue(a4 != null);
         assertEquals(2, steps.size());
-    }
-
-    /*
-     * For UI
-     */
-    @Test
-    void getQTable() {
-    }
-
-    @Test
-    void getCurrentValue() {
-    }
-
-    @Test
-    void getEpisodeSteps() {
     }
 }
