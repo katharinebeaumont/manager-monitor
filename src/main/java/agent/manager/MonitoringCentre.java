@@ -109,9 +109,14 @@ public class MonitoringCentre {
 			
 			try {
 				String response = controller.beat(s.getName(), loc);
-				MonitorStatus status = new MonitorStatus(s.getName(), response, loc);
-				pause = qLearningController.process(status);
-				errorCount = 0; //reset as back in communication
+				//TODO: this should constitute some kind of error really...
+				if (!response.contains("eventStoreEmpty")) {
+					MonitorStatus status = new MonitorStatus(s.getName(), response, loc);
+					pause = qLearningController.process(status);
+					errorCount = 0; //reset as back in communication
+				} else {
+					log.info("Event store empty, not processing:" + response);
+				}
 			} catch (HeartbeatException hbe){
 				errorCount++;
 				if (errorCount >= errorThreshold) {
