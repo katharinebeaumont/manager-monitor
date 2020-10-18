@@ -1,28 +1,33 @@
+#Settings that need configuring to match the host machine
+# running the agents
 server.port=${port:7070}
 spring.data.neo4j.uri=bolt://localhost:7687
 spring.data.neo4j.username=neo4j
 spring.data.neo4j.password=thesis
+agent.monitor.jar=monitor.jar
+agent.directory=/Users/katharine/Documents/UCD/Semester \3/ms-with-agents/
 
+#Optional settings
 logging.file=manager_agent_logs.txt
 logging.level.org.neo4j=ERROR
 
+#Optional settings
 agent.mode=manager
 agent.name=manager
-agent.monitor.jar=monitor.jar
-agent.directory=/Users/katharine/Documents/UCD/Semester \3/ms-with-agents/
 agent.heartbeat.interval = 2
 agent.heartbeat.errorThreshold = 3
 agent.heartbeat.initialDelay = 60
 
-spring.boot.admin.username=admin
-spring.boot.admin.password=admin
-
+#The microservice metrics configuration
 monitoring.metrics.endpoint=actuator/metrics
+#Which metrics to collect
 monitoring.metrics.filter=jvm.memory.used;jvm.memory.max;system.cpu.usage
+#How often the monitoring agent should poll the microservice
 monitoring.interval = 1
 monitoring.errorThreshold = 3
 monitoring.initialDelay = 60
 
+#Learning metrics for the manager agent
 qlearning.lowerRewardThreshold = -3
 qlearning.gamma = 0.7
 qlearning.alpha = 0.8
@@ -30,4 +35,5 @@ qlearning.epsilon = 0.5
 qlearning.preferNoAction = false
 qlearning.disable = false
 
-experiment=0
+#Whether or not to run the experiment on the manager agent
+experiment=1

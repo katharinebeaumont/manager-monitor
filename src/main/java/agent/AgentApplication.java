@@ -69,7 +69,7 @@ public class AgentApplication {
 		log.info("Initialising .... ");
 		
 		if (agentMode.equals("manager")) {
-			if (experiment == 1) {
+			if (experiment == 2) {
 				log.info("Starting experiment 1: automatically deploy agent and mock service locally.");
 				log.info("Deleting all monitors");
 				monitorService.deleteAll();
@@ -88,28 +88,6 @@ public class AgentApplication {
 				Location loc1 = new Location("http://localhost", "local", 3000, false);
 				locService.save(loc1);
 				Location loc2 = new Location("http://localhost", "local", 7000, false);
-				locService.save(loc2);
-			}
-			if (experiment == 2) {
-				log.info("Starting experiment 2: deploy agent to a choice of faulty and non-faulty host.");
-				log.info("Deleting all slaves");
-				monitorService.deleteAll();
-				
-				log.info("Deleting all locations");
-				locService.deleteAll();
-				
-				log.info("Deleting all applications");
-				appService.deleteAll();
-				
-				Application entity1 = new Application("mockService", "mockService.jar");
-				appService.save(entity1);
-				log.info("Saved new application " + entity1.getName());
-				
-				log.info("Creating 2 possible locations");
-				//Sublocations of port 8000 are faulty in this experiment 
-				Location loc1 = new Location("http://localhost", "local", 8000, false);
-				Location loc2 = new Location("http://localhost", "local", 9000, false);
-				locService.save(loc1);
 				locService.save(loc2);
 			}
 			
