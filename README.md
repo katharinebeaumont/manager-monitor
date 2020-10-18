@@ -82,4 +82,4 @@ Running the code in an IDE is recommended for this experiemnt. Open Eclipse or I
 
 ## Running Experiment 2
 
-Launch the manager agent with `experiment=2` configured in [application.properties](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/resources/application.properties). This automatically starts the experiment. To observe learnings, navigage to http:localhost://7070/agents.
+Launch the manager agent with `experiment=2` configured in [application.properties](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/resources/application.properties). This automatically starts the experiment. To observe learnings, navigage to http://localhost:7070/agents.
