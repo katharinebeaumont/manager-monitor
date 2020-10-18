@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +55,7 @@ public class QLearningSimulationManager {
      * Learning parameters
      */
     String agentName = "Agent0";
-    int lowerThreshold = -2;
+    int lowerThreshold = -5;
     double gamma = 0.9;
     double alpha = 0.01;
     double epsilon = 0.20;
@@ -62,7 +63,7 @@ public class QLearningSimulationManager {
     /*
      * Test parameters
      */
-    int noEpisodesToTrain = 1000;
+    int noEpisodesToTrain = 5000;
     
     /*
      * Messy but have to do this in order to see how many times this
@@ -71,26 +72,18 @@ public class QLearningSimulationManager {
      */
     @Test
     public void runTest1() {
-    	simulateManagerQLearning();
+    	simulateManagerQLearning(1);
     }
     @Test
     public void runTest2() {
-    	simulateManagerQLearning();
+    	simulateManagerQLearning(2);
     }
     @Test
     public void runTest3() {
-    	simulateManagerQLearning();
+    	simulateManagerQLearning(3);
     }
-    @Test
-    public void runTest4() {
-    	simulateManagerQLearning();
-    }
-    @Test
-    public void runTest5() {
-    	simulateManagerQLearning();
-    }
-
-    private void simulateManagerQLearning() {
+    
+    private void simulateManagerQLearning(int test) {
     	
     	//QLearning calls the database in DBInterface to see what
     	// available locations there are, and creates the possible actions 
@@ -98,15 +91,16 @@ public class QLearningSimulationManager {
     	// in this test
     	DBInterface dbInterface = Mockito.spy(new DBInterface());
         
-    	QLearningManager qLearning = Mockito.spy(new QLearningManager(dbInterface, agentName, lowerThreshold, gamma, alpha, epsilon, true));
+    	QLearningManager qLearning = Mockito.spy(new QLearningManager(dbInterface, agentName, lowerThreshold, gamma, alpha, epsilon, false));
         mockPotentialActions(qLearning);
     	
+        QLearningSimulationStates simulationProvider = new QLearningSimulationStates(agentName, test);
+        
     	//Keep track of the number of times an action was taken
     	HashMap<Action, Integer> actionCount = new HashMap<Action, Integer>();
     	//Same for the states
     	HashMap<MonitorStatus, Integer> stateCount = new HashMap<MonitorStatus, Integer>();
     	
-    	QLearningSimulationStates simulationProvider = new QLearningSimulationStates(agentName);
         //The iteration number (total steps across all episodes)
         int i = 0;
         //The episode number
@@ -130,27 +124,14 @@ public class QLearningSimulationManager {
                 actionTaken = new Action(ActionEnum.DO_NOTHING);
             }   
             
-            
             updateActionCount(actionCount, actionTaken);
             updateStateCount(stateCount, state);
-        }
-        
-        log.info("Finished! Taken " + i + " steps over " + noEpisodesToTrain + " episodes.");
-        
-        log.info("Actions over time: ");
-        for (Action a: actionCount.keySet()) {
-        	int count = actionCount.get(a);
-        	log.info("Took action: " + a + " " + count + " times");
-        }
-        log.info("States over time: ");
-        for (MonitorStatus s: stateCount.keySet()) {
-        	int count = stateCount.get(s);
-        	log.info("Was in state: " + s.toString() + " " + count + " times");
         }
     
         //Now test is over, show results in console:
         try {
-            assertAndLogResults(qLearning.getQTable());
+        	QLearningSimulationFileWriter fw = new QLearningSimulationFileWriter("Results_" + test);
+            logResults(qLearning.getQTable(), fw, i, actionCount, stateCount);
         } catch (Exception e) {
             fail("Test has failed due to exception: " + e.getMessage());
         }
@@ -176,36 +157,69 @@ public class QLearningSimulationManager {
     	Mockito.doReturn(actionsForLocation2).when(qLearning).updateAvailableLocations("2");
 	}
 
-    private void assertAndLogResults(QTable table) throws Exception {
-        HashMap<State, HashMap> map = table.getQTable();
-        log.info("******************************");
-        log.info("Q table for " + agentName + " is size " + map.size());
-        log.info("Reminder: JVM Memory 0 = bad, Latency 1 = bad");
+    private void logResults(QTable table, QLearningSimulationFileWriter fw, int i, HashMap<Action, Integer> actionCount, HashMap<MonitorStatus, Integer> stateCount) throws Exception {
+        StringBuffer bs = new StringBuffer();
+        
+        log.info("Finished! Taken " + i + " steps over " + noEpisodesToTrain + " episodes.");
+        
+        bs.append("Finished! Taken " + i + " steps over " + noEpisodesToTrain + " episodes.");
+        
+        bs.append("\nActions over time: ");
+        for (Action a: actionCount.keySet()) {
+        	int count = actionCount.get(a);
+        	bs.append("\nTook action: " + a + " " + count + " times");
+        }
+        bs.append("\nStates over time: ");
+        for (MonitorStatus s: stateCount.keySet()) {
+        	int count = stateCount.get(s);
+        	bs.append("\nWas in state: " + s.toString() + " " + count + " times");
+        }
+        
+    	HashMap<State, HashMap> map = table.getQTable();
+    	bs.append("\n******************************");
+    	bs.append("\nQ table for " + agentName + " is size " + map.size());
         for (State s: map.keySet()) {
         	JSONObject stateDesc = s.getStateDesc();
             int location = (Integer) stateDesc.get("location");
-            log.info("---------- State ----------");
+            bs.append("\n---------- State ----------");
             
             if (stateDesc.has("jvmMemory")) {
-            	log.info("Location: " + location + ", JVM Memory: " + stateDesc.getDouble("jvmMemory"));
+            	bs.append("\nLocation: " + location + ", JVM Memory: " + stateDesc.getString("jvmMemory"));
             } else {
-            	log.info("Location: " + location + ", Latency: " + stateDesc.getDouble("latency"));
+            	bs.append("\nLocation: " + location + ", CPU Usage: " + stateDesc.getString("cpuUsage"));
             }
             List<QLearningStateViewEntity> views = QLearningStateViewEntityBuilder.build(s, map.get(s));
+            double highestValue = -5;
+            String bestAction = "";
             for (QLearningStateViewEntity view: views) {
                 String a = view.getAction();
                 double v = view.getValue();
                 if (a.equals(ActionEnum.DO_NOTHING.toString())) {
-                    log.info("Do nothing:" + v);
+                	bs.append("\nDo nothing:" + v);
                 } else if (a.contains(ActionEnum.MOVE.toString())) {
-                    log.info(a + ":" + v);
+                	bs.append("\n" + a + ":" + v);
                 } else {
                     throw new Exception("Unaccounted for action: " + a);
                 }
+                if (v > highestValue) {
+                	highestValue = v;
+                	bestAction = a;
+                }
             }
+            bs.append("\nBest action to take: " + bestAction);
         }
 
-        for (State s: map.keySet()) {
+        bs.append("\n******************************");
+        try {
+        	fw.writeToFile(bs.toString());
+        } catch (IOException io) {
+        	log.error("Could not write results to file");
+        }
+        
+    }
+    
+    //Old assertions
+    /*for (State s: map.keySet()) {
             double valueDoNothing = 0;
             double valueMove = 0;
             //State: location + ":" + jvmMemory + ":" + latency;
@@ -234,14 +248,11 @@ public class QLearningSimulationManager {
             JSONObject stateDesc = s.getStateDesc();
             int location = (Integer) stateDesc.get("location");
             if (location == 2) {
-            	assertTrue(valueDoNothing < valueMove);
+         //   	assertTrue(valueDoNothing < valueMove);
             } else if (location == 1) {
-            	assertTrue(valueDoNothing > valueMove);
+          //  	assertTrue(valueDoNothing > valueMove);
             } else {
-            	fail(); //Shouldn't be here
+            //	fail(); //Shouldn't be here
             }
-        }
-        
-        log.info("******************************");
-    }
+        }*/
 }

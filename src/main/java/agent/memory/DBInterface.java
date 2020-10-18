@@ -56,6 +56,7 @@ public class DBInterface {
 	 * Update application to set location
 	 */
 	public void updateLocationForApplication(Application e, Location loc) {
+		locationService.deleteRelationship(e.getName());
 		e.setLocation(loc);
 		appService.save(e);
 	}

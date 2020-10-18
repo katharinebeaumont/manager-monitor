@@ -41,15 +41,16 @@ To run in manager mode:
 - Ensure `application.properties` contains
 
     agent.mode=manager
+    
     agent.name=manager
 
 This can be run from a code editor (e.g. Eclipse or IntelliJ) or packaged as a jar and executed on the command line.
 
-The manager agent reads in Applications from Neo4J. The starting point is agent.manager.ManagerAgent.java
+The manager agent reads in Applications from Neo4J. The starting point is [`agent.manager.ManagerAgent`](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/java/agent/AgentApplication.java)
 
- - Experiment 1 (see (agent.AgentApplication)[https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/java/agent/AgentApplication.java]) wipes the Neo4J database, then creates and saves one application and two locations on localhost (port 3000 and 7000). It requires the mock service to be packaged as `mockService.jar`.
+ - Experiment 1 (see [`agent.AgentApplication`](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/java/agent/AgentApplication.java)) wipes the Neo4J database, then creates and saves one application and two locations on localhost (port 3000 and 7000). It requires the mock service to be packaged as `mockService.jar`.
  - The application will have either port 3000 or port 7000 assigned to it as a location, and the microservice will be deployed to the same host (so, localhost) at a different port (3010 or 7010 depending).
- - The monitoring agent launches the mock service at the assigned location. The manager agent logs are output as per the logging.file configuration [application.properties](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/resources/application.properties)
+ - The monitoring agent launches the mock service at the assigned location. The manager agent logs are output as per the logging.file configuration in [`application.properties`](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/resources/application.properties)
  - By default the manager agent runs on http://localhost:7070/, and details of the monitoring agents can be seen at http://localhost:7070/agents.
 
 ## Running the Monitoring Agent
@@ -65,6 +66,8 @@ To run in monitor mode:
 
 `java -jar -Dlogging.file=monitoring_agent.txt -Dagent.mode=monitor -Dagent.name=test-monitoring_agent -Dagent.service.jar=monitor.jar monitor.jar`
 
- The starting point is agent.monitor.MonitoringAgent.java
+ The starting point is [`agent.monitor.MonitoringAgent`](https://github.com/katharinebeaumont/manager-monitor/blob/master/src/main/java/agent/monitor/MonitoringAgent.java)
+
+## Running Experiment 1
 
 

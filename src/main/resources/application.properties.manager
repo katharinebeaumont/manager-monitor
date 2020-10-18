@@ -30,4 +30,4 @@ qlearning.epsilon = 0.5
 qlearning.preferNoAction = false
 qlearning.disable = false
 
-experiment=1
+experiment=0

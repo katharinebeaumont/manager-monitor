@@ -60,15 +60,6 @@ public class MonitoringAgent {
 		log.info("Figuring out who I am responsible for.");
 		Application application = loadApplication();
 		
-		//Experiment
-		if (experiment > 0) {
-			if (experiment == 2 && port > 8000 && port < 9000) {
-				log.info("Starting monitoring agent in experiment mode 2: faulty port");
-				log.info("Not deploying application.");
-				return;
-			}
-		}
-		
 		//See if the application is running already
 		try {
 			log.info("Checking to see if " + application.getName() + " is running.");
